@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sadhna Ayurveda – Pure Ayurvedic Wellness for Everyday Health</title>
+  <meta name="description" content="Sadhna Ayurveda offers premium herbal Ayurvedic supplements for diabetes care, joint relief, liver detox, and daily vitality. 100% organic, trusted by thousands." />
+  <meta name="keywords" content="Ayurveda, herbal supplements, diabetes care, joint relief, liver detox, organic, Sadhna Ayurveda" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Sadhna Ayurveda" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sadhna Ayurveda – Pure Ayurvedic Wellness" />
+  <meta property="og:description" content="Premium herbal Ayurvedic supplements for diabetes care, joint relief, liver detox & daily vitality. 100% organic, lab-tested, trusted by thousands across India." />
+  <meta property="og:image" content="images/hero1.png" />
+  <meta property="og:url" content="https://sadhnaayurveda.com" />
+  <meta property="og:site_name" content="Sadhna Ayurveda" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sadhna Ayurveda – Pure Ayurvedic Wellness" />
+  <meta name="twitter:description" content="100% natural Ayurvedic supplements. Shop for Diabetes, Joint Pain, Liver Detox & more. Trusted by thousands across India." />
+  <meta name="twitter:image" content="images/hero1.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== ANNOUNCEMENT BAR ===================== -->
+  <div class="announcement-bar" id="announcementBar">
+    <button class="ann-nav prev" id="annPrev" aria-label="Previous announcement"><i class="fas fa-chevron-left"></i></button>
+    <div class="ann-track-wrapper">
+      <div class="ann-track" id="annTrack">
+        <span>🌿 Free Shipping on Prepaid Orders</span>
+        <span>✨ Use code SADHNA10 for 10% OFF your first order</span>
+        <span>🌱 100% Natural &amp; Organic Ingredients – No Side Effects</span>
+        <span>📞 24/7 Customer Support: +91 9718179397</span>
+      </div>
+    </div>
+    <button class="ann-nav next" id="annNext" aria-label="Next announcement"><i class="fas fa-chevron-right"></i></button>
+      <div class="ann-socials">
+        <a href="https://www.facebook.com/share/1SpwrWS3M7/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:info@sadhnaayurveda.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+        <a href="tel:+919718179397" aria-label="Phone"><i class="fas fa-phone"></i></a>
+      </div>
+  </div>
+
+  <!-- ===================== HEADER / NAVBAR ===================== -->
+  <header class="header" id="mainHeader">
+    <div class="header-inner">
+      <!-- Logo -->
+      <a href="index.html" class="logo-link" aria-label="Sadhna Ayurveda Home">
+        <img src="images/logo.png" alt="Sadhna Ayurveda Logo" class="logo-img" />
+        <div class="logo-text">
+          <span class="logo-hindi">साधना</span>
+          <span class="logo-name">SADHNA</span>
+          <span class="logo-sub">AYURVEDA</span>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-bar" id="searchBar">
+          <div class="search-type">
+            <select id="searchType" aria-label="Search type">
+              <option>All types</option>
+              <option>Capsules</option>
+              <option>Powder</option>
+              <option>Drops</option>
+              <option>Combo</option>
+            </select>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <input type="text" id="searchInput" placeholder="Search Ayurvedic products..." aria-label="Search products" />
+          <button class="search-mic" aria-label="Voice search"><i class="fas fa-microphone"></i></button>
+          <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="action-btn" id="giftBtn" title="Offers &amp; Gifts" aria-label="Gifts">
+          <i class="fas fa-gift"></i>
+        </button>
+        <button class="action-btn" id="accountBtn" title="My Account" aria-label="Account">
+          <i class="fas fa-user"></i>
+        </button>
+        <button class="action-btn cart-btn" id="cartBtn" title="Shopping Cart" aria-label="Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <div class="divider"></div>
+        <!-- Dark/Light Mode Toggle -->
+        <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle theme">
+          <i class="fas fa-circle-half-stroke"></i>
+        </button>
+      </div>
+
+      <!-- Hamburger for mobile -->
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav" id="mainNav">
+      <ul class="nav-list">
+        <li class="nav-item active">
+          <a href="index.html" class="nav-link">Home</a>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="#bestsellers" class="nav-link">Shop <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown mega-dropdown">
+            <div class="mega-col">
+              <h4>Categories</h4>
+              <a href="#bestsellers" onclick="filterProducts('diabetes')"><i class="fas fa-leaf"></i> Diabetes Care</a>
+              <a href="#bestsellers" onclick="filterProducts('joint')"><i class="fas fa-bone"></i> Joint &amp; Pain Relief</a>
+              <a href="#bestsellers" onclick="filterProducts('liver')"><i class="fas fa-heart-pulse"></i> Liver Detox</a>
+              <a href="#bestsellers" onclick="filterProducts('mens')"><i class="fas fa-dumbbell"></i> Men's Wellness</a>
+              <a href="#bestsellers" onclick="filterProducts('womens')"><i class="fas fa-spa"></i> Women's Wellness</a>
+              <a href="#bestsellers" onclick="filterProducts('sleep')"><i class="fas fa-brain"></i> Stress &amp; Sleep</a>
+            </div>
+            <div class="mega-col">
+              <h4>Product Types</h4>
+              <a href="#bestsellers" onclick="filterProducts('capsules')"><i class="fas fa-capsules"></i> Capsules</a>
+              <a href="#bestsellers" onclick="filterProducts('powder')"><i class="fas fa-mortar-pestle"></i> Powders</a>
+              <a href="#bestsellers" onclick="filterProducts('drops')"><i class="fas fa-flask"></i> Drops &amp; Liquids</a>
+              <a href="#bestsellers" onclick="filterProducts('combo')"><i class="fas fa-box"></i> Combo Packs</a>
+            </div>
+            <div class="mega-col featured-col">
+              <h4>Featured</h4>
+              <div class="featured-product-mini" onclick="filterProducts('diabetes')" style="cursor:pointer">
+                <img src="images/product_diabetes.png" alt="Madhu Shant" />
+                <div>
+                  <p>Sadhna Madhu Shant</p>
+                  <span>From ₹3,500</span>
+                </div>
+              </div>
+              <div class="featured-product-mini" onclick="filterProducts('liver')" style="cursor:pointer">
+                <img src="images/product_liver.png" alt="Liver Detox" />
+                <div>
+                  <p>Sadhna Liver Detox</p>
+                  <span>From ₹3,500</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="nav-item has-dropdown">
+          <a href="#bestsellers" class="nav-link">Health Concerns <i class="fas fa-chevron-down"></i></a>
+          <div class="dropdown">
+            <a href="#bestsellers" onclick="filterProducts('diabetes')"><i class="fas fa-tint"></i> Diabetes &amp; Blood Sugar</a>
+            <a href="#bestsellers" onclick="filterProducts('heart')"><i class="fas fa-heartbeat"></i> Heart Health</a>
+            <a href="#bestsellers" onclick="filterProducts('joint')"><i class="fas fa-bone"></i> Arthritis &amp; Joints</a>
+            <a href="#bestsellers" onclick="filterProducts('lungs')"><i class="fas fa-lungs"></i> Respiratory Health</a>
+            <a href="#bestsellers" onclick="filterProducts('liver')"><i class="fas fa-stomach"></i> Digestive &amp; Liver Health</a>
+            <a href="#bestsellers" onclick="filterProducts('weight')"><i class="fas fa-weight"></i> Weight Management</a>
+            <a href="#bestsellers" onclick="filterProducts('stress')"><i class="fas fa-brain"></i> Stress &amp; Anxiety</a>
+            <a href="#bestsellers" onclick="filterProducts('immunity')"><i class="fas fa-shield-heart"></i> Immunity Boost</a>
+          </div>
+        </li>
+        <li class="nav-item">
+          <a href="#bestsellers" onclick="filterProducts('all')" class="nav-link">Best Sellers</a>
+        </li>
+        <li class="nav-item">
+          <a href="#bestsellers" onclick="filterProducts('combo')" class="nav-link">Combo Offers</a>
+        </li>
+        <li class="nav-item">
+          <a href="#blog" class="nav-link">Health Tips</a>
+        </li>
+        <li class="nav-item">
+          <a href="#contact" class="nav-link">Contact Us</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ===================== HERO SLIDER ===================== -->
+  <section class="hero-section" id="hero">
+    <div class="hero-slider" id="heroSlider">
+      <!-- Slide 1 (Light) -->
+      <div class="hero-slide active" id="slide1">
+        <img src="images/hero1.png" alt="Pure Ayurvedic Wellness for Everyday Health – Sadhna Ayurveda" class="slide-img" />
+        <div class="slide-overlay">
+          <div class="slide-content">
+            <p class="slide-tag"><i class="fas fa-certificate"></i> SADHNA AYURVEDA • Pure Ayurvedic</p>
+            <h1 class="slide-title">Wellness for<br/>Everyday Health</h1>
+            <p class="slide-desc">Premium herbal support for diabetes care, joint relief &amp; daily vitality.</p>
+            <div class="slide-badges">
+              <span><i class="fas fa-check-circle"></i> 100% Natural</span>
+              <span><i class="fas fa-check-circle"></i> No Side Effects</span>
+              <span><i class="fas fa-check-circle"></i> Lab Tested</span>
+            </div>
+            <div class="slide-actions">
+              <a href="#bestsellers" onclick="filterProducts('all')" class="btn btn-primary">Shop Now</a>
+              <a href="#about" class="btn btn-outline">Learn More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Slide 2 (Dark) -->
+      <div class="hero-slide" id="slide2">
+        <img src="images/hero2.png" alt="Sadhna Veer Plus – Natural Support for Men's Power and Energy" class="slide-img" />
+        <div class="slide-overlay dark-overlay">
+          <div class="slide-content">
+            <p class="slide-tag gold"><i class="fas fa-crown"></i> SADHNA AYURVEDA • Premium Collection</p>
+            <h1 class="slide-title gold-text">Powered by<br/>Ayurveda</h1>
+            <p class="slide-desc light">Ancient Herbs. Modern Strength. Real Results.</p>
+            <div class="slide-badges gold-badges">
+              <span><i class="fas fa-check-circle"></i> Strength</span>
+              <span><i class="fas fa-check-circle"></i> Performance</span>
+              <span><i class="fas fa-check-circle"></i> Stamina</span>
+            </div>
+            <div class="slide-actions">
+              <a href="#bestsellers" onclick="filterProducts('mens')" class="btn btn-gold">Shop Now</a>
+              <a href="#about" class="btn btn-outline-gold">Explore</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Slider Controls -->
+    <button class="slide-btn prev" id="slidePrev" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
+    <button class="slide-btn next" id="slideNext" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
+    <div class="slide-dots" id="slideDots">
+      <button class="dot active" data-slide="0" aria-label="Slide 1"></button>
+      <button class="dot" data-slide="1" aria-label="Slide 2"></button>
+    </div>
+  </section>
+
+  <!-- ===================== TRUST BADGES ===================== -->
+  <section class="trust-section">
+    <div class="trust-container">
+      <div class="trust-item">
+        <i class="fas fa-truck-fast"></i>
+        <div>
+          <strong>Free Shipping</strong>
+          <span>On prepaid orders</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-leaf"></i>
+        <div>
+          <strong>100% Organic</strong>
+          <span>Natural ingredients</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-flask"></i>
+        <div>
+          <strong>Lab Tested</strong>
+          <span>Quality guaranteed</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-rotate-left"></i>
+        <div>
+          <strong>Easy Returns</strong>
+          <span>7-day return policy</span>
+        </div>
+      </div>
+      <div class="trust-item">
+        <i class="fas fa-headset"></i>
+        <div>
+          <strong>24/7 Support</strong>
+          <span>Always here to help</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SHOP BY CONCERN ===================== -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Explore Our Range</p>
+        <h2 class="section-title">Shop by Health Concern</h2>
+        <p class="section-desc">Targeted Ayurvedic solutions for your specific health &amp; wellness needs.</p>
+      </div>
+      <div class="categories-grid">
+        <a href="#bestsellers" onclick="filterProducts('diabetes')" class="category-card" id="cat-diabetes">
+          <div class="cat-img-wrapper">
+            <img src="images/cat_diabetes.png" alt="Diabetes Care" />
+            <div class="brand-watermark">SADHNA AYURVEDA</div>
+          </div>
+          <div class="cat-info">
+            <h3>Diabetes Care</h3>
+            <p>Madhu Shant &amp; Sugar Free Formulations</p>
+          </div>
+        </a>
+        <a href="#bestsellers" onclick="filterProducts('joint')" class="category-card" id="cat-joint">
+          <div class="cat-img-wrapper">
+            <img src="images/cat_joint.png" alt="Joint &amp; Pain Relief" />
+            <div class="brand-watermark">SADHNA AYURVEDA</div>
+          </div>
+          <div class="cat-info">
+            <h3>Joint &amp; Pain Relief</h3>
+            <p>Shallaki, Turmeric &amp; Boswellia Blend</p>
+          </div>
+        </a>
+        <a href="#bestsellers" onclick="filterProducts('liver')" class="category-card" id="cat-liver">
+          <div class="cat-img-wrapper">
+            <img src="images/cat_liver.png" alt="Liver Detox" />
+            <div class="brand-watermark">SADHNA AYURVEDA</div>
+          </div>
+          <div class="cat-info">
+            <h3>Liver Detox</h3>
+            <p>Triphala, Katuki &amp; Kalmegh Formula</p>
+          </div>
+        </a>
+        <a href="#bestsellers" onclick="filterProducts('mens')" class="category-card" id="cat-mens">
+          <div class="cat-img-wrapper">
+            <img src="images/cat_mens.png" alt="Men's Wellness" />
+            <div class="brand-watermark">SADHNA AYURVEDA</div>
+          </div>
+          <div class="cat-info">
+            <h3>Men's Wellness</h3>
+            <p>Shilajit, Safed Musli &amp; Ashwagandha</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROMO BANNER ===================== -->
+  <section class="promo-section" id="promo">
+    <div class="promo-inner">
+      <img src="images/promo.png" alt="Sadhna Shant – Ancient Wisdom Modern Wellness" class="promo-img" />
+      <div class="promo-content">
+        <p class="promo-tag"><i class="fas fa-star"></i> Special Offer</p>
+        <h2>Ancient Wisdom.<br/><span>Modern Wellness.</span></h2>
+        <p>Get up to <strong>40% OFF</strong> on our best-selling Sadhna Shant formula. Limited time offer.</p>
+        <div class="promo-timer" id="promoTimer">
+          <div class="timer-unit"><span id="timerH">08</span><label>Hours</label></div>
+          <div class="timer-sep">:</div>
+          <div class="timer-unit"><span id="timerM">34</span><label>Mins</label></div>
+          <div class="timer-sep">:</div>
+          <div class="timer-unit"><span id="timerS">00</span><label>Secs</label></div>
+        </div>
+        <a href="#bestsellers" class="btn btn-primary">Grab the Deal</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== BEST SELLERS / PRODUCTS ===================== -->
+  <section class="section" id="bestsellers">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Top Picks</p>
+        <h2 class="section-title" id="productsHeading">Our Ayurvedic Products</h2>
+        <p class="section-desc">Trusted by thousands of customers across India for natural healing.</p>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="product-filter-pills" id="productFilterPills">
+        <button class="filter-pill active" onclick="filterProducts('all', this)"><i class="fas fa-th-large"></i> All Products</button>
+        <button class="filter-pill" onclick="filterProducts('diabetes', this)"><i class="fas fa-leaf"></i> Diabetes Care</button>
+        <button class="filter-pill" onclick="filterProducts('joint', this)"><i class="fas fa-bone"></i> Joint Relief</button>
+        <button class="filter-pill" onclick="filterProducts('liver', this)"><i class="fas fa-heart-pulse"></i> Liver Detox</button>
+        <button class="filter-pill" onclick="filterProducts('powder', this)"><i class="fas fa-mortar-pestle"></i> Powders</button>
+        <button class="filter-pill" onclick="filterProducts('capsules', this)"><i class="fas fa-capsules"></i> Capsules</button>
+      </div>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Product 1 -->
+        <div class="product-card" id="prod-madhu" data-category="diabetes capsules sugar">
+          <div class="product-img-wrapper">
+            <img src="images/product_diabetes.png" alt="Madhu Shant Diabetes Support Capsules" />
+            <div class="product-badges">
+              <span class="badge badge-sale">SALE</span>
+              <span class="badge badge-organic">Organic</span>
+            </div>
+            <div class="product-actions-overlay">
+              <button class="prod-action-btn" title="Quick View" aria-label="Quick view"><i class="fas fa-eye"></i></button>
+              <button class="prod-action-btn wishlist-btn" title="Add to wishlist" aria-label="Wishlist"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+          <div class="product-info">
+            <p class="product-category"><i class="fas fa-certificate"></i> SADHNA AYURVEDA • Diabetes Care</p>
+            <h3 class="product-name">Sadhna Madhu Shant Diabetes Support Caps</h3>
+            <div class="product-rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+              <span>(128 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="price-original">₹5,000</span>
+              <span class="price-sale">From ₹3,500</span>
+            </div>
+            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Madhu Shant Caps', 3500)" aria-label="Add to cart">
+              <i class="fas fa-shopping-bag"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+        <!-- Product 2 -->
+        <div class="product-card" id="prod-nirog" data-category="diabetes powder sugar">
+          <div class="product-img-wrapper">
+            <img src="images/product_sugar.png" alt="Nirog Sugar Powder" />
+            <div class="product-badges">
+              <span class="badge badge-sale">SALE</span>
+            </div>
+            <div class="product-actions-overlay">
+              <button class="prod-action-btn" title="Quick View" aria-label="Quick view"><i class="fas fa-eye"></i></button>
+              <button class="prod-action-btn wishlist-btn" title="Add to wishlist" aria-label="Wishlist"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+          <div class="product-info">
+            <p class="product-category"><i class="fas fa-certificate"></i> SADHNA AYURVEDA • Diabetes Care</p>
+            <h3 class="product-name">Sadhna Nirog Sugar Powder | Gudmar, Karela &amp; Jamun</h3>
+            <div class="product-rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <span>(256 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="price-original">₹5,000</span>
+              <span class="price-sale">From ₹3,500</span>
+            </div>
+            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Nirog Sugar Powder', 3500)" aria-label="Add to cart">
+              <i class="fas fa-shopping-bag"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+        <!-- Product 3 -->
+        <div class="product-card" id="prod-liver" data-category="liver capsules detox">
+          <div class="product-img-wrapper">
+            <img src="images/product_liver.png" alt="Liver Detox Care Capsules" />
+            <div class="product-badges">
+              <span class="badge badge-new">NEW</span>
+              <span class="badge badge-organic">Organic</span>
+            </div>
+            <div class="product-actions-overlay">
+              <button class="prod-action-btn" title="Quick View" aria-label="Quick view"><i class="fas fa-eye"></i></button>
+              <button class="prod-action-btn wishlist-btn" title="Add to wishlist" aria-label="Wishlist"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+          <div class="product-info">
+            <p class="product-category"><i class="fas fa-certificate"></i> SADHNA AYURVEDA • Liver Detox</p>
+            <h3 class="product-name">Sadhna Liver Detox Care – Advanced Formula</h3>
+            <div class="product-rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+              <span>(89 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="price-original">₹5,000</span>
+              <span class="price-sale">From ₹3,500</span>
+            </div>
+            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Liver Detox Care', 3500)" aria-label="Add to cart">
+              <i class="fas fa-shopping-bag"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+        <!-- Product 4 -->
+        <div class="product-card" id="prod-joint" data-category="joint capsules pain arthritis">
+          <div class="product-img-wrapper">
+            <img src="images/product_joint.png" alt="Joint Relieve Capsules" />
+            <div class="product-badges">
+              <span class="badge badge-sale">SALE</span>
+            </div>
+            <div class="product-actions-overlay">
+              <button class="prod-action-btn" title="Quick View" aria-label="Quick view"><i class="fas fa-eye"></i></button>
+              <button class="prod-action-btn wishlist-btn" title="Add to wishlist" aria-label="Wishlist"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+          <div class="product-info">
+            <p class="product-category"><i class="fas fa-certificate"></i> SADHNA AYURVEDA • Joint Care</p>
+            <h3 class="product-name">Sadhna Joint Relieve – Natural Pain Relief</h3>
+            <div class="product-rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i>
+              <span>(192 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="price-original">₹5,000</span>
+              <span class="price-sale">From ₹3,500</span>
+            </div>
+            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Joint Relieve Caps', 3500)" aria-label="Add to cart">
+              <i class="fas fa-shopping-bag"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="view-all-wrapper">
+        <a href="#" class="btn btn-outline-primary" id="viewAllProducts">View All Products <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WHY SADHNA ===================== -->
+  <section class="why-section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Our Promise</p>
+        <h2 class="section-title">Why Choose Sadhna Ayurveda?</h2>
+        <p class="section-desc">Rooted in 5000 years of Ayurvedic wisdom, powered by modern science.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card" id="why-purity">
+          <div class="why-icon"><i class="fas fa-leaf"></i></div>
+          <h3>100% Pure Herbs</h3>
+          <p>We source only the finest organic herbs from trusted Himalayan and South Indian farms with no adulteration.</p>
+        </div>
+        <div class="why-card" id="why-science">
+          <div class="why-icon"><i class="fas fa-flask-vial"></i></div>
+          <h3>Science-Backed Formulas</h3>
+          <p>Every product is developed by expert Ayurvedic doctors and validated in certified NABL laboratories.</p>
+        </div>
+        <div class="why-card" id="why-no-side">
+          <div class="why-icon"><i class="fas fa-shield-heart"></i></div>
+          <h3>Zero Side Effects</h3>
+          <p>Our formulations are free from steroids, chemicals, and heavy metals — safe for long-term use.</p>
+        </div>
+        <div class="why-card" id="why-trust">
+          <div class="why-icon"><i class="fas fa-users"></i></div>
+          <h3>50,000+ Happy Customers</h3>
+          <p>Trusted by over fifty thousand patients and families across India for natural, effective healing.</p>
+        </div>
+        <div class="why-card" id="why-gmp">
+          <div class="why-icon"><i class="fas fa-certificate"></i></div>
+          <h3>GMP Certified</h3>
+          <p>Manufactured in a WHO-GMP certified facility following strict quality control at every stage.</p>
+        </div>
+        <div class="why-card" id="why-free">
+          <div class="why-icon"><i class="fas fa-truck-fast"></i></div>
+          <h3>Fast &amp; Free Shipping</h3>
+          <p>Free shipping on all prepaid orders. Delivered within 3–5 business days across India.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TESTIMONIALS ===================== -->
+  <section class="section testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Customer Stories</p>
+        <h2 class="section-title">What Our Customers Say</h2>
+        <p class="section-desc">Real results from real people. See how Sadhna Ayurveda is changing lives.</p>
+      </div>
+      <div class="testimonials-slider" id="testiSlider">
+        <div class="testi-track" id="testiTrack">
+          <div class="testi-card">
+            <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p class="testi-text">"My blood sugar levels dropped significantly after just 2 months of using Madhu Shant Capsules. I was skeptical at first but the results speak for themselves!"</p>
+            <div class="testi-author">
+              <div class="testi-avatar">RK</div>
+              <div>
+                <strong>Rajesh Kumar</strong>
+                <span>Delhi, India</span>
+              </div>
+            </div>
+            <div class="testi-product"><i class="fas fa-box"></i> Madhu Shant Caps</div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p class="testi-text">"Joint Relieve has been a blessing. I had severe knee pain for years. After 3 months of usage I can walk without pain. Highly recommend to anyone with arthritis."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">SP</div>
+              <div>
+                <strong>Sunita Patel</strong>
+                <span>Mumbai, India</span>
+              </div>
+            </div>
+            <div class="testi-product"><i class="fas fa-box"></i> Joint Relieve Caps</div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-stroke"></i></div>
+            <p class="testi-text">"The Liver Detox capsules helped me get rid of fatty liver symptoms. My doctor was surprised at my improvement. The packaging is premium and delivery was super fast!"</p>
+            <div class="testi-author">
+              <div class="testi-avatar">AM</div>
+              <div>
+                <strong>Arjun Mishra</strong>
+                <span>Lucknow, India</span>
+              </div>
+            </div>
+            <div class="testi-product"><i class="fas fa-box"></i> Liver Detox Care</div>
+          </div>
+          <div class="testi-card">
+            <div class="testi-stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            <p class="testi-text">"Nirog Sugar Powder is an amazing product. I mix it with water every morning and my sugar cravings have completely stopped. My energy levels are through the roof!"</p>
+            <div class="testi-author">
+              <div class="testi-avatar">PD</div>
+              <div>
+                <strong>Priya Desai</strong>
+                <span>Ahmedabad, India</span>
+              </div>
+            </div>
+            <div class="testi-product"><i class="fas fa-box"></i> Nirog Sugar Powder</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-controls">
+        <button class="testi-btn" id="testiPrev" aria-label="Previous testimonial"><i class="fas fa-chevron-left"></i></button>
+        <div class="testi-dots" id="testiDots">
+          <button class="dot active" data-testi="0"></button>
+          <button class="dot" data-testi="1"></button>
+          <button class="dot" data-testi="2"></button>
+          <button class="dot" data-testi="3"></button>
+        </div>
+        <button class="testi-btn" id="testiNext" aria-label="Next testimonial"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HEALTH TIPS / BLOG ===================== -->
+  <section class="section blog-section" id="blog">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Ayurvedic Knowledge</p>
+        <h2 class="section-title">Health Tips &amp; Insights</h2>
+        <p class="section-desc">Explore our articles on holistic wellness, Ayurvedic remedies, and healthy living.</p>
+      </div>
+      <div class="blog-grid">
+        <a href="#" class="blog-card" id="blog-1">
+          <div class="blog-img-wrapper">
+            <img src="images/cat_diabetes.png" alt="5 Ayurvedic Herbs for Blood Sugar Control" />
+            <span class="blog-tag">Diabetes</span>
+          </div>
+          <div class="blog-content">
+            <span class="blog-date"><i class="fas fa-calendar"></i> July 15, 2026</span>
+            <h3>5 Powerful Ayurvedic Herbs to Control Blood Sugar Naturally</h3>
+            <p>Discover how Gudmar, Karela, Jamun, Methi, and Vijayasar can help you manage blood sugar levels without side effects...</p>
+            <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+        <a href="#" class="blog-card" id="blog-2">
+          <div class="blog-img-wrapper">
+            <img src="images/cat_joint.png" alt="Ayurvedic Treatment for Arthritis" />
+            <span class="blog-tag">Joint Health</span>
+          </div>
+          <div class="blog-content">
+            <span class="blog-date"><i class="fas fa-calendar"></i> July 10, 2026</span>
+            <h3>Ayurvedic Treatment for Arthritis – What Really Works</h3>
+            <p>Learn about the ancient Ayurvedic formulations combining Boswellia, Shallaki, and Turmeric for lasting joint relief...</p>
+            <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+        <a href="#" class="blog-card" id="blog-3">
+          <div class="blog-img-wrapper">
+            <img src="images/cat_liver.png" alt="How to Detox Your Liver Naturally" />
+            <span class="blog-tag">Liver Health</span>
+          </div>
+          <div class="blog-content">
+            <span class="blog-date"><i class="fas fa-calendar"></i> July 5, 2026</span>
+            <h3>How to Detox Your Liver Naturally with Ayurveda</h3>
+            <p>The liver is your body's detox powerhouse. Find out how Ayurvedic herbs like Triphala and Katuki can revitalize it...</p>
+            <span class="read-more">Read More <i class="fas fa-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FAQ SECTION ===================== -->
+  <section class="section faq-section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Got Questions?</p>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-desc">Find answers to common questions about our products, delivery, and Ayurvedic wellness.</p>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Are Sadhna Ayurveda products 100% natural and safe?</span>
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes, all Sadhna Ayurveda formulations are made with 100% pure herbal extracts, free from chemicals, artificial additives, and heavy metals. They are lab-tested and completely safe for daily use.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>How long does delivery take across India?</span>
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="faq-answer">
+            <p>We process all orders within 24 hours. Express shipping usually delivers within 3–5 business days to all major cities across India. Free shipping is available on all prepaid orders!</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>Is Cash on Delivery (COD) available?</span>
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! Cash on Delivery is available for all pin codes across India. You can also pay online via UPI, Credit/Debit cards, or Net Banking for extra discounts.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            <span>How do I contact customer support?</span>
+            <i class="fas fa-plus"></i>
+          </button>
+          <div class="faq-answer">
+            <p>Our customer support team is available 24/7. You can call or WhatsApp us at <strong>+91 9718179397</strong>, or email us at <strong>info@sadhnaayurveda.com</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NEWSLETTER ===================== -->
+  <section class="newsletter-section" id="newsletter">
+    <div class="newsletter-inner">
+      <div class="newsletter-text">
+        <h2>Subscribe to Our Emails</h2>
+        <p>Be the first to know about new collections, exclusive offers, and wellness tips.</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm" onsubmit="subscribeNewsletter(event)">
+        <input type="email" id="newsletterEmail" placeholder="Enter your email address" required aria-label="Email for newsletter" />
+        <button type="submit" id="newsletterSubmit">Subscribe <i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer" id="contact">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="footer-logo">
+          <img src="images/logo.png" alt="Sadhna Ayurveda" />
+          <div class="footer-logo-text">
+            <span class="logo-hindi">साधना</span>
+            <span>SADHNA AYURVEDA</span>
+          </div>
+        </a>
+        <p class="footer-tagline">Rooted in ancient wisdom. Trusted by modern India. Pure Ayurvedic wellness for every household.</p>
+        <div class="footer-contact-info">
+          <p><i class="fas fa-location-dot"></i> Budh Nagar J J Colony, House No. D 440, Delhi</p>
+          <p><i class="fas fa-phone"></i> <a href="tel:+919718179397">+91 9718179397</a></p>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:info@sadhnaayurveda.com">info@sadhnaayurveda.com</a></p>
+        </div>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/share/1SpwrWS3M7/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://wa.me/919718179397?text=Hello%20Sadhna%20Ayurveda" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+          <a href="mailto:info@sadhnaayurveda.com" class="social-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Menu</h4>
+        <ul>
+          <li><a href="#hero">Home</a></li>
+          <li><a href="#categories">Shop</a></li>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Contact Us</a></li>
+          <li><a href="terms.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms &amp; Conditions</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Subscribe to Our Emails</h4>
+        <form class="footer-newsletter" onsubmit="subscribeNewsletter(event)">
+          <input type="email" placeholder="Email" aria-label="Footer email newsletter" />
+          <button type="submit" aria-label="Subscribe"><i class="fas fa-arrow-right"></i></button>
+        </form>
+        <div class="footer-social-icons">
+          <a href="https://www.facebook.com/share/1SpwrWS3M7/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="mailto:info@sadhnaayurveda.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+          <a href="tel:+919718179397" aria-label="Phone"><i class="fas fa-phone"></i></a>
+          <a href="https://wa.me/919718179397" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact &amp; Support</h4>
+        <div class="help-item">
+          <div class="help-icon"><i class="fas fa-phone"></i></div>
+          <div>
+            <p>Got questions? Call us 24/7</p>
+            <a href="tel:+919718179397" class="help-link">+91 9718179397</a>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-icon"><i class="fas fa-envelope"></i></div>
+          <div>
+            <p>Send us an email</p>
+            <a href="mailto:info@sadhnaayurveda.com" class="help-link">info@sadhnaayurveda.com</a>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-icon"><i class="fas fa-location-dot"></i></div>
+          <div>
+            <p>Visit / Office Address</p>
+            <span class="help-link" style="font-size:12px; line-height:1.3; display:block">Budh Nagar J J Colony, House No. D 440</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026, Sadhna Ayurveda. All rights reserved.</p>
+      <div class="payment-icons">
+        <i class="fab fa-cc-visa"></i>
+        <i class="fab fa-cc-mastercard"></i>
+        <i class="fab fa-cc-amex"></i>
+        <i class="fab fa-google-pay"></i>
+        <i class="fas fa-mobile-screen"></i>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== CART SIDEBAR ===================== -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-bag"></i> Your Cart</h3>
+      <button class="cart-close" onclick="toggleCart()" aria-label="Close cart"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty" id="cartEmpty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Your cart is empty</p>
+        <a href="#bestsellers" onclick="toggleCart()" class="btn btn-primary">Start Shopping</a>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter" style="display:none">
+      <div class="cart-total">
+        <span>Total:</span>
+        <strong id="cartTotal">₹0</strong>
+      </div>
+      <button class="btn btn-primary full-width" id="checkoutBtn">Proceed to Checkout <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </aside>
+
+  <!-- ===================== FLOATING WHATSAPP CHAT BUTTON ===================== -->
+  <a href="https://wa.me/919718179397?text=Hello%20Sadhna%20Ayurveda%2C%20I%20have%20an%20inquiry%20about%20your%20products" class="floating-whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+    <span class="whatsapp-text">Chat with Us</span>
+  </a>
+
+  <!-- ===================== BACK TO TOP ===================== -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
+
+  <!-- ===================== RAZORPAY CHECKOUT MODAL ===================== -->
+  <div class="modal-overlay" id="checkoutModalOverlay" onclick="closeCheckoutModal()"></div>
+  <div class="modal-dialog checkout-modal" id="checkoutModal">
+    <div class="modal-header">
+      <h3><i class="fas fa-shield-halved"></i> Secure Checkout – Sadhna Ayurveda</h3>
+      <button class="modal-close" onclick="closeCheckoutModal()" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="checkout-summary-box">
+        <p>Order Total: <strong id="checkoutModalTotal">₹0</strong></p>
+        <span><i class="fas fa-truck-fast"></i> Free Shipping Included</span>
+      </div>
+      <form id="checkoutForm" onsubmit="handleRazorpayPayment(event)">
+        <div class="form-group">
+          <label for="custName"><i class="fas fa-user"></i> Full Name *</label>
+          <input type="text" id="custName" placeholder="Enter your full name" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="custPhone"><i class="fas fa-phone"></i> Phone Number *</label>
+            <input type="tel" id="custPhone" placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" required />
+          </div>
+          <div class="form-group">
+            <label for="custEmail"><i class="fas fa-envelope"></i> Email Address *</label>
+            <input type="email" id="custEmail" placeholder="yourname@gmail.com" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="custAddress"><i class="fas fa-location-dot"></i> Delivery Address &amp; Pincode *</label>
+          <textarea id="custAddress" rows="2" placeholder="House No., Street, City, State & Pincode" required></textarea>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-wallet"></i> Payment Method</label>
+          <div class="payment-options">
+            <label class="payment-opt active">
+              <input type="radio" name="payMethod" value="razorpay" checked />
+              <div class="opt-content">
+                <strong><i class="fas fa-credit-card"></i> Pay Online via Razorpay</strong>
+                <span>UPI (GPay, PhonePe, Paytm), Cards, NetBanking</span>
+                <span class="badge-rzp">Fast &amp; Secure</span>
+              </div>
+            </label>
+            <label class="payment-opt">
+              <input type="radio" name="payMethod" value="cod" />
+              <div class="opt-content">
+                <strong><i class="fas fa-hand-holding-dollar"></i> Cash on Delivery (COD)</strong>
+                <span>Pay cash when your order is delivered to your doorstep</span>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="tc-agree-label" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:var(--text-secondary);font-weight:400;">
+            <input type="checkbox" id="tcAgree" required style="width:16px;height:16px;margin-top:2px;accent-color:var(--accent-brown);flex-shrink:0;" />
+            <span>I agree to the <a href="terms.html" target="_blank" style="color:var(--accent-brown);font-weight:600;">Terms &amp; Conditions</a>, including the 7-day return policy and medical disclaimer. I confirm I am 18+ years old.</span>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-pay-now" id="payNowBtn">
+          <i class="fas fa-lock"></i> Pay Now with Razorpay
+        </button>
+      </form>
+      <div class="trust-badges-checkout">
+        <span><i class="fas fa-lock"></i> 256-Bit SSL Encrypted</span>
+        <span><i class="fas fa-certificate"></i> Official Razorpay Partner</span>
+        <span><i class="fas fa-rotate-left"></i> 7-Day Easy Returns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST NOTIFICATION ===================== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Razorpay Official SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
