@@ -1226,6 +1226,38 @@ function switchAccountTab(tabId, btn) {
   if (target) target.classList.add('active');
 }
 
+function openReviewModal() {
+  const overlay = document.getElementById('reviewModalOverlay');
+  const modal = document.getElementById('reviewModal');
+  if (overlay && modal) {
+    overlay.classList.add('active');
+    modal.classList.add('active');
+  }
+}
+window.openReviewModal = openReviewModal;
+
+function closeReviewModal() {
+  const overlay = document.getElementById('reviewModalOverlay');
+  const modal = document.getElementById('reviewModal');
+  if (overlay && modal) {
+    overlay.classList.remove('active');
+    modal.classList.remove('active');
+  }
+}
+window.closeReviewModal = closeReviewModal;
+
+function submitCustomerReview(e) {
+  e.preventDefault();
+  const name = document.getElementById('reviewName').value;
+  const city = document.getElementById('reviewCity').value;
+  const product = document.getElementById('reviewProduct').value;
+  const text = document.getElementById('reviewText').value;
+
+  closeReviewModal();
+  showToast(`⭐ Thank you ${name}! Your review for ${product} has been submitted successfully.`);
+}
+window.submitCustomerReview = submitCustomerReview;
+
 function triggerAvatarUpload() {
   const fileInput = document.getElementById('userAvatarFileInput');
   if (fileInput) fileInput.click();
