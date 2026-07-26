@@ -3317,14 +3317,17 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
+  background: rgba(107, 66, 38, 0.08);
+  border: 1px solid rgba(107, 66, 38, 0.2);
   color: var(--accent-brown);
+  font-family: var(--font-accent);
   font-size: 12px;
   font-weight: 700;
   padding: 6px 14px;
   border-radius: 50px;
   cursor: pointer;
+  outline: none;
+  box-shadow: none;
   transition: all 0.2s ease;
   user-select: none;
 }
@@ -3332,6 +3335,13 @@ button {
   background: var(--accent-brown);
   color: #ffffff;
   border-color: var(--accent-brown);
+  box-shadow: 0 4px 12px rgba(107, 66, 38, 0.25);
+}
+.role-badge-pill.admin-active {
+  background: #27ae60;
+  color: #ffffff;
+  border-color: #27ae60;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
 }
 .role-badge-pill i { font-size: 11px; }
 

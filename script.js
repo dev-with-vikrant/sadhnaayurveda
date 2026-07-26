@@ -1272,13 +1272,16 @@ function toggleDashboardRole() {
 
 function applyDashboardRoleState() {
   const roleLabel = document.getElementById('dashboardRoleLabel');
+  const rolePill = document.getElementById('dashboardRolePill');
   const navTabAdmin = document.getElementById('navTabAdmin');
 
   if (currentDashboardRole === 'admin') {
     if (roleLabel) roleLabel.textContent = 'Admin View (Active)';
-    if (navTabAdmin) navTabAdmin.style.display = 'flex';
+    if (rolePill) rolePill.classList.add('admin-active');
+    if (navTabAdmin) navTabAdmin.style.display = 'inline-flex';
   } else {
     if (roleLabel) roleLabel.textContent = 'Switch to Admin';
+    if (rolePill) rolePill.classList.remove('admin-active');
     if (navTabAdmin) navTabAdmin.style.display = 'none';
     // If currently on admin tab, switch back to profile
     const activeTab = document.querySelector('.account-tab-content.active');
