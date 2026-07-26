@@ -231,16 +231,22 @@ button {
 .logo-link {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
   text-decoration: none;
 }
 
 .logo-img {
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 10px;
+  filter: drop-shadow(0 3px 8px rgba(107, 58, 31, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.logo-link:hover .logo-img {
+  transform: scale(1.08);
 }
 
 .logo-text {
@@ -250,26 +256,27 @@ button {
 }
 
 .logo-hindi {
-  font-family: var(--font-display);
-  font-size: 14px;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
   color: var(--accent-brown);
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .logo-name {
   font-family: var(--font-accent);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   color: var(--accent-brown);
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
 }
 
 .logo-sub {
   font-family: var(--font-accent);
-  font-size: 10px;
-  font-weight: 400;
-  color: var(--text-muted);
-  letter-spacing: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  letter-spacing: 3.5px;
   text-transform: uppercase;
 }
 
