@@ -1683,11 +1683,11 @@ button {
   text-decoration: underline;
 }
 
-/* Floating WhatsApp Widget */
+/* Floating WhatsApp Widget (Positioned at Right Corner) */
 .floating-whatsapp {
   position: fixed;
   bottom: 30px;
-  left: 30px;
+  right: 30px;
   background: #25d366;
   color: #ffffff;
   padding: 12px 20px;
@@ -3103,8 +3103,8 @@ button {
    ============================================= */
 .back-to-top {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
+  bottom: 90px;
+  right: 30px;
   width: 46px;
   height: 46px;
   background: var(--accent-brown);
