@@ -755,21 +755,7 @@ button {
 }
 
 .slide-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  padding: 0 80px;
-  background: linear-gradient(90deg, #f5f0e8 0%, #f5f0e8 52%, rgba(245, 240, 232, 0.85) 68%, transparent 100%);
-  z-index: 3;
-}
-
-[data-theme="dark"] .slide-overlay {
-  background: linear-gradient(90deg, #140d06 0%, #140d06 52%, rgba(20, 13, 6, 0.85) 68%, transparent 100%);
-}
-
-.dark-overlay {
-  background: linear-gradient(90deg, #0e0803 0%, #0e0803 52%, rgba(14, 8, 3, 0.85) 68%, transparent 100%) !important;
+  display: none !important;
 }
 
 .slide-content {
