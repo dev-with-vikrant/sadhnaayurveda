@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /*?*search_term_string=
+Disallow: /*?*add-to-cart=
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
 
 Sitemap: https://sadhnaayurveda.com/sitemap.xml

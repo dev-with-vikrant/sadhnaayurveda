@@ -1,14 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://sadhnaayurveda.com/</loc>
-    <lastmod>2026-07-25</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://sadhnaayurveda.com/images/hero1.png</image:loc>
+      <image:title>Sadhna Ayurveda Pure Ayurvedic Wellness</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://sadhnaayurveda.com/images/product_diabetes.png</image:loc>
+      <image:title>Sadhna Madhu Shant Diabetes Support Capsules</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://sadhnaayurveda.com/images/product_sugar.png</image:loc>
+      <image:title>Sadhna Nirog Sugar Powder</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://sadhnaayurveda.com/images/product_liver.png</image:loc>
+      <image:title>Sadhna Liver Detox Care</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://sadhnaayurveda.com/images/product_joint.png</image:loc>
+      <image:title>Sadhna Joint Relieve Capsules</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://sadhnaayurveda.com/terms.html</loc>
-    <lastmod>2026-07-25</lastmod>
+    <lastmod>2026-07-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
