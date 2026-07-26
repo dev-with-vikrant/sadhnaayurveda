@@ -1373,13 +1373,17 @@
       <div class="account-tab-content active" id="accountTabProfile">
         <!-- User Profile Header -->
         <div class="user-profile-header">
-          <div class="user-avatar-wrapper">
+          <div class="user-avatar-wrapper" onclick="triggerAvatarUpload()" title="Click to upload profile photo">
             <img src="" id="accountUserAvatarImg" class="user-avatar-img" style="display:none;" alt="User Profile Photo" />
             <div class="user-avatar" id="accountUserAvatar">S</div>
+            <div class="avatar-upload-overlay">
+              <i class="fas fa-camera"></i>
+            </div>
+            <input type="file" id="userAvatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)" />
           </div>
           <div class="user-info-text">
-            <h4 id="accountUserHeaderName">Welcome, Guest</h4>
-            <p id="accountUserHeaderPhone"><i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member</p>
+            <h4 id="accountUserHeaderName">Welcome, Guest User</h4>
+            <p id="accountUserHeaderPhone" style="display:none;"><i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member</p>
             <div class="user-auth-badge" id="userAuthBadge" style="display:none;"><i class="fab fa-google" style="color:#4285F4;"></i> Signed in via Google</div>
           </div>
           <button type="button" class="btn-logout-pill" id="btnLogoutPill" onclick="handleUserLogout()" style="display:none;" title="Sign out of account">

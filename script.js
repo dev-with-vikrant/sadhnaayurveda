@@ -1206,13 +1206,39 @@ function switchAccountTab(tabId, btn) {
   if (target) target.classList.add('active');
 }
 
+function triggerAvatarUpload() {
+  const fileInput = document.getElementById('userAvatarFileInput');
+  if (fileInput) fileInput.click();
+}
+
+function handleAvatarUpload(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Please select a valid image file (JPG, PNG, WEBP).');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const base64Image = event.target.result;
+    const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
+    savedProfile.avatarUrl = base64Image;
+
+    localStorage.setItem('sadhna-user-profile', JSON.stringify(savedProfile));
+    loadUserProfile();
+    showToast('📸 Profile photo updated successfully!');
+  };
+  reader.readAsDataURL(file);
+}
+
 function loadUserProfile() {
   const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
-
-  const profileName = document.getElementById('profileName');
-  const profilePhone = document.getElementById('profilePhone');
-  const profileEmail = document.getElementById('profileEmail');
-  const profileAddress = document.getElementById('profileAddress');
+  const profileName = document.getElementById('custProfileName');
+  const profilePhone = document.getElementById('custProfilePhone');
+  const profileEmail = document.getElementById('custProfileEmail');
+  const profileAddress = document.getElementById('custProfileAddress');
 
   if (profileName) profileName.value = savedProfile.name || '';
   if (profilePhone) profilePhone.value = savedProfile.phone || '';
@@ -1226,14 +1252,21 @@ function loadUserProfile() {
   const authBadge = document.getElementById('userAuthBadge');
   const logoutBtn = document.getElementById('btnLogoutPill');
   const savedAddrText = document.getElementById('savedAddressText');
-  const googleAuthBox = document.getElementById('googleAuthBox');
+  const shopifyAuthBox = document.getElementById('shopifyAuthBox');
 
-  if (savedProfile.authProvider === 'google' || savedProfile.email) {
+  if (savedProfile.authProvider === 'google' || savedProfile.email || savedProfile.avatarUrl) {
     if (headerName) headerName.textContent = savedProfile.name || 'Sadhna Ayurveda Member';
-    if (headerPhone) headerPhone.innerHTML = `<i class="fas fa-envelope" style="color:var(--accent-brown)"></i> ${savedProfile.email}`;
-    if (authBadge) authBadge.style.display = 'inline-flex';
+    if (headerPhone) {
+      if (savedProfile.email) {
+        headerPhone.style.display = 'block';
+        headerPhone.innerHTML = `<i class="fas fa-envelope" style="color:var(--accent-brown)"></i> ${savedProfile.email}`;
+      } else {
+        headerPhone.style.display = 'none';
+      }
+    }
+    if (authBadge) authBadge.style.display = savedProfile.authProvider === 'google' ? 'inline-flex' : 'none';
     if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-    if (googleAuthBox) googleAuthBox.style.display = 'none';
+    if (shopifyAuthBox) shopifyAuthBox.style.display = 'none';
 
     if (savedProfile.avatarUrl && avatarImg) {
       avatarImg.src = savedProfile.avatarUrl;
@@ -1248,10 +1281,10 @@ function loadUserProfile() {
     }
   } else {
     if (headerName) headerName.textContent = 'Welcome, Guest User';
-    if (headerPhone) headerPhone.innerHTML = '<i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member';
+    if (headerPhone) headerPhone.style.display = 'none';
     if (authBadge) authBadge.style.display = 'none';
     if (logoutBtn) logoutBtn.style.display = 'none';
-    if (googleAuthBox) googleAuthBox.style.display = 'block';
+    if (shopifyAuthBox) shopifyAuthBox.style.display = 'block';
     if (avatarImg) avatarImg.style.display = 'none';
     if (avatarText) {
       avatarText.style.display = 'flex';
