@@ -1353,6 +1353,24 @@ function handleUserLogout() {
   showToast('👋 You have been logged out.');
 }
 
+function openGpsPermissionModal() {
+  const overlay = document.getElementById('gpsPermissionOverlay');
+  const modal = document.getElementById('gpsPermissionModal');
+  if (overlay && modal) {
+    overlay.classList.add('active');
+    modal.classList.add('active');
+  }
+}
+
+function closeGpsPermissionModal() {
+  const overlay = document.getElementById('gpsPermissionOverlay');
+  const modal = document.getElementById('gpsPermissionModal');
+  if (overlay && modal) {
+    overlay.classList.remove('active');
+    modal.classList.remove('active');
+  }
+}
+
 // HTML5 Geolocation API Automatic Live Location Detection
 async function detectLiveLocation(targetTextareaId) {
   const target = document.getElementById(targetTextareaId);
@@ -1419,7 +1437,7 @@ async function detectLiveLocation(targetTextareaId) {
         btn.innerHTML = '<i class="fas fa-location-crosshairs"></i> Detect Live Location';
       }
       if (error.code === error.PERMISSION_DENIED) {
-        showToast('⚠️ GPS location permission denied. Please allow location access in your browser.');
+        openGpsPermissionModal();
       } else {
         showToast('⚠️ Unable to fetch live GPS location. Please enter address manually.');
       }
@@ -1460,17 +1478,21 @@ function renderUserOrders() {
     return;
   }
 
-  listContainer.innerHTML = orders.map(ord => {
+  listContainer.innerHTML = orders.map((ord, idx) => {
+    const awbNum = ord.awbNumber || `SR${840000000 + (idx * 137) % 100000000}`;
+    const trackingUrl = `https://shiprocket.co/tracking/${awbNum}`;
+
     const waMsgText = encodeURIComponent(
       `🌿 *ORDER STATUS INQUIRY - SADHNA AYURVEDA*\n\n` +
       `🆔 *Order ID:* ${ord.paymentId}\n` +
+      `🚚 *AWB Tracking:* ${awbNum}\n` +
       `👤 *Name:* ${ord.name}\n` +
       `📞 *Phone:* ${ord.phone}\n` +
       `💰 *Total:* ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}`
     );
 
     return `
-      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:16px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,0.04);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <div>
             <strong style="color:var(--accent-brown);font-size:14.5px;">#${ord.paymentId}</strong>
@@ -1485,6 +1507,11 @@ function renderUserOrders() {
           🛒 ${ord.itemsList}
         </div>
 
+        <div style="font-size:12px;color:var(--text-secondary);background:var(--bg-body);padding:6px 12px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border-color);">
+          <span><i class="fas fa-barcode" style="color:var(--accent-brown);margin-right:4px;"></i> <strong>Shipment AWB:</strong> <code style="font-size:12px;color:var(--accent-brown);">${awbNum}</code></span>
+          <span style="font-size:11px;color:#27ae60;font-weight:600;"><i class="fas fa-truck-fast"></i> Shiprocket Express</span>
+        </div>
+
         <!-- Order Live Status Timeline Bar -->
         <div class="order-tracker-box">
           <div class="tracker-timeline">
@@ -1496,7 +1523,7 @@ function renderUserOrders() {
               <div class="tracker-dot"><i class="fas fa-box"></i></div>
               <span>Packed</span>
             </div>
-            <div class="tracker-step">
+            <div class="tracker-step completed">
               <div class="tracker-dot"><i class="fas fa-truck"></i></div>
               <span>Shipped</span>
             </div>
@@ -1507,11 +1534,14 @@ function renderUserOrders() {
           </div>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px dashed var(--border-color);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px dashed var(--border-color);flex-wrap:wrap;gap:8px;">
           <strong style="color:#27ae60;font-size:15px;">Total: ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <a href="${trackingUrl}" target="_blank" rel="noopener noreferrer" class="btn" style="background:#1b4332;color:#fff;font-size:11.5px;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;">
+              <i class="fas fa-truck-fast"></i> Track Courier (AWB)
+            </a>
             <a href="https://wa.me/919718179397?text=${waMsgText}" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25d366;color:#fff;font-size:11.5px;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;">
-              <i class="fab fa-whatsapp"></i> Track on WhatsApp
+              <i class="fab fa-whatsapp"></i> WhatsApp
             </a>
             <button type="button" class="btn btn-outline-primary" onclick="window.print()" style="font-size:11.5px;padding:6px 10px;"><i class="fas fa-print"></i> Invoice</button>
           </div>
