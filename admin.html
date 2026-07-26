@@ -130,7 +130,10 @@
       </div>
     </a>
     <div style="display:flex;align-items:center;gap:14px;">
-      <span class="badge-status status-approved"><i class="fas fa-shield-halved"></i> Admin PIN Verified</span>
+      <span class="badge-status status-approved"><i class="fas fa-shield-halved"></i> 6-Digit Passcode Protected</span>
+      <button onclick="resetAdminPasscode()" class="filter-btn" style="font-size:12px;padding:6px 14px;background:#ffffff;border-color:#5c3a21;color:#5c3a21;">
+        <i class="fas fa-key"></i> Change Passcode
+      </button>
       <a href="/" class="btn btn-outline-primary" style="text-decoration:none;font-size:13px;padding:8px 16px;border-radius:50px;"><i class="fas fa-store"></i> Back to Live Store</a>
     </div>
   </header>
@@ -193,26 +196,35 @@
     </div>
   </main>
 
-  <!-- ADMIN PIN LOGIN GATE OVERLAY -->
+  <!-- ADMIN 6-DIGIT PIN SETUP & LOGIN GATE OVERLAY -->
   <div id="adminPinGateOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(45,42,38,0.92);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;">
-    <div style="background:#ffffff;border:1px solid #e4dac3;border-radius:20px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+    <div style="background:#ffffff;border:1px solid #e4dac3;border-radius:20px;padding:32px 28px;max-width:440px;width:92%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.3);">
       <div style="width:64px;height:64px;border-radius:50%;background:rgba(92,58,33,0.1);color:#5c3a21;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px;">
         <i class="fas fa-user-shield"></i>
       </div>
-      <h3 style="margin:0 0 6px;color:#4a2e12;font-size:20px;">Sadhna Admin Portal</h3>
-      <p style="margin:0 0 20px;color:#7f8c8d;font-size:13px;">Enter 4-Digit Admin Security PIN (Default: <strong>1234</strong>)</p>
+      <h3 style="margin:0 0 6px;color:#4a2e12;font-size:20px;" id="gateTitle">Sadhna Admin Security</h3>
+      <p style="margin:0 0 20px;color:#7f8c8d;font-size:13px;" id="gateSubtitle">Enter your 6-digit admin security passcode</p>
 
-      <form onsubmit="verifyGatePin(event)">
-        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px;">
-          <input type="password" maxlength="1" id="gatePin1" onkeyup="moveGatePin(this, 'gatePin2', null)" autofocus style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
-          <input type="password" maxlength="1" id="gatePin2" onkeyup="moveGatePin(this, 'gatePin3', 'gatePin1')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
-          <input type="password" maxlength="1" id="gatePin3" onkeyup="moveGatePin(this, 'gatePin4', 'gatePin2')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
-          <input type="password" maxlength="1" id="gatePin4" onkeyup="moveGatePin(this, null, 'gatePin3')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+      <form onsubmit="handleGatePasscodeSubmit(event)">
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:16px;">
+          <input type="password" maxlength="1" id="gatePin1" class="pin-box" onkeyup="moveGatePin(this, 'gatePin2', null)" autofocus style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin2" class="pin-box" onkeyup="moveGatePin(this, 'gatePin3', 'gatePin1')" style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin3" class="pin-box" onkeyup="moveGatePin(this, 'gatePin4', 'gatePin2')" style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin4" class="pin-box" onkeyup="moveGatePin(this, 'gatePin5', 'gatePin3')" style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin5" class="pin-box" onkeyup="moveGatePin(this, 'gatePin6', 'gatePin4')" style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin6" class="pin-box" onkeyup="moveGatePin(this, null, 'gatePin5')" style="width:42px;height:50px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
         </div>
 
-        <div id="gatePinError" style="color:#e74c3c;font-size:13px;font-weight:600;display:none;margin-bottom:12px;">❌ Incorrect PIN. Try again.</div>
+        <div id="gatePinError" style="color:#e74c3c;font-size:13px;font-weight:600;display:none;margin-bottom:12px;">❌ Incorrect Passcode. Try again.</div>
 
-        <button type="submit" class="btn-approve" style="width:100%;padding:12px;font-size:15px;border-radius:10px;background:#5c3a21;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <label style="font-size:12px;color:#7f8c8d;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" onchange="toggleGatePinMask(this)" /> Show Passcode
+          </label>
+          <span style="font-size:11px;color:#7f8c8d;"><i class="fas fa-lock"></i> 6-Digit Protection</span>
+        </div>
+
+        <button type="submit" id="gateSubmitBtn" class="btn-approve" style="width:100%;padding:12px;font-size:15px;border-radius:10px;background:#5c3a21;">
           <i class="fas fa-key"></i> Unlock Admin Portal
         </button>
       </form>
@@ -226,33 +238,102 @@
     let currentFilter = 'all';
 
     function checkAdminGate() {
-      if (sessionStorage.getItem('sadhna-admin-unlocked') === 'true') {
-        const gate = document.getElementById('adminPinGateOverlay');
-        if (gate) gate.style.display = 'none';
-        fetchAdminOrders();
+      const storedPasscode = localStorage.getItem('sadhna-admin-passcode-6');
+      const gateTitle = document.getElementById('gateTitle');
+      const gateSubtitle = document.getElementById('gateSubtitle');
+      const gateSubmitBtn = document.getElementById('gateSubmitBtn');
+
+      if (!storedPasscode) {
+        // First-time Passcode Setup Mode
+        if (gateTitle) gateTitle.textContent = 'Set 6-Digit Admin Passcode';
+        if (gateSubtitle) gateSubtitle.textContent = 'Create your new secret 6-digit passcode for store admin portal access';
+        if (gateSubmitBtn) gateSubmitBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Passcode &amp; Unlock';
+      } else {
+        // Passcode Verification Mode
+        if (gateTitle) gateTitle.textContent = 'Sadhna Admin Security';
+        if (gateSubtitle) gateSubtitle.textContent = 'Enter your 6-digit admin security passcode';
+        if (gateSubmitBtn) gateSubmitBtn.innerHTML = '<i class="fas fa-key"></i> Unlock Admin Portal';
+
+        if (sessionStorage.getItem('sadhna-admin-unlocked') === 'true') {
+          const gate = document.getElementById('adminPinGateOverlay');
+          if (gate) gate.style.display = 'none';
+          fetchAdminOrders();
+        }
       }
     }
 
-    function verifyGatePin(e) {
+    function handleGatePasscodeSubmit(e) {
       e.preventDefault();
       const p1 = document.getElementById('gatePin1').value;
       const p2 = document.getElementById('gatePin2').value;
       const p3 = document.getElementById('gatePin3').value;
       const p4 = document.getElementById('gatePin4').value;
-      const pin = `${p1}${p2}${p3}${p4}`;
+      const p5 = document.getElementById('gatePin5').value;
+      const p6 = document.getElementById('gatePin6').value;
+      const enteredPasscode = `${p1}${p2}${p3}${p4}${p5}${p6}`;
 
-      if (pin === '1234') {
+      const storedPasscode = localStorage.getItem('sadhna-admin-passcode-6');
+      const errorMsg = document.getElementById('gatePinError');
+
+      if (enteredPasscode.length !== 6) {
+        if (errorMsg) {
+          errorMsg.textContent = '⚠️ Please enter all 6 digits.';
+          errorMsg.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!storedPasscode) {
+        // First time setup - Save new 6-digit passcode
+        localStorage.setItem('sadhna-admin-passcode-6', enteredPasscode);
         sessionStorage.setItem('sadhna-admin-unlocked', 'true');
         document.getElementById('adminPinGateOverlay').style.display = 'none';
+        showToast('🟢 6-Digit Admin Passcode created & saved successfully!');
         fetchAdminOrders();
       } else {
-        document.getElementById('gatePinError').style.display = 'block';
+        // Verify passcode
+        if (enteredPasscode === storedPasscode) {
+          sessionStorage.setItem('sadhna-admin-unlocked', 'true');
+          document.getElementById('adminPinGateOverlay').style.display = 'none';
+          showToast('🟢 Passcode verified! Admin Portal unlocked.');
+          fetchAdminOrders();
+        } else {
+          if (errorMsg) {
+            errorMsg.textContent = '❌ Incorrect 6-Digit Passcode. Access Denied.';
+            errorMsg.style.display = 'block';
+          }
+          showToast('❌ Incorrect Passcode!');
+        }
       }
+    }
+
+    function toggleGatePinMask(checkbox) {
+      const type = checkbox.checked ? 'text' : 'password';
+      ['gatePin1', 'gatePin2', 'gatePin3', 'gatePin4', 'gatePin5', 'gatePin6'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.type = type;
+      });
     }
 
     function moveGatePin(current, nextId, prevId) {
       if (current.value.length === 1 && nextId) {
         document.getElementById(nextId).focus();
+      }
+    }
+
+    function resetAdminPasscode() {
+      const current = prompt('Enter CURRENT 6-Digit Admin Passcode:');
+      const stored = localStorage.getItem('sadhna-admin-passcode-6');
+      if (current === stored) {
+        const newPass = prompt('Enter NEW 6-Digit Passcode (6 numbers):');
+        if (newPass && newPass.length === 6 && /^\d+$/.test(newPass)) {
+          localStorage.setItem('sadhna-admin-passcode-6', newPass);
+          showToast('✅ 6-Digit Admin Passcode changed successfully!');
+        } else {
+          alert('⚠️ Invalid Passcode! Must be exactly 6 digits.');
+        }
+      } else {
+        alert('❌ Incorrect current passcode.');
       }
     }
 
