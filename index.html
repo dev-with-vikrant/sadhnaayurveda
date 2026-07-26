@@ -339,9 +339,16 @@
             </select>
             <i class="fas fa-chevron-down"></i>
           </div>
-          <input type="text" id="searchInput" placeholder="Search Ayurvedic products..." aria-label="Search products" />
-          <button class="search-mic" aria-label="Voice search"><i class="fas fa-microphone"></i></button>
-          <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+          <i class="fas fa-magnifying-glass search-leading-icon"></i>
+          <input type="text" id="searchInput" placeholder="Search Ayurvedic products..." aria-label="Search products" autocomplete="off" />
+          <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Clear input" style="display:none;" onclick="clearSearchInput()"><i class="fas fa-xmark"></i></button>
+          <button type="button" class="search-mic" id="searchMicBtn" onclick="startVoiceSearch()" aria-label="Voice search" title="Search by Voice (English &amp; Hindi)"><i class="fas fa-microphone"></i></button>
+          <button type="button" class="search-btn" onclick="executeSearch()" aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+
+        <!-- Live Auto-complete & Product Suggestions Dropdown -->
+        <div class="search-suggestions-dropdown" id="searchSuggestions" style="display:none;">
+          <!-- Dynamic suggestions rendered via JS -->
         </div>
       </div>
 

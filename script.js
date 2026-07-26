@@ -420,12 +420,123 @@ function filterProducts(category, pillBtn) {
   if (mainNav) mainNav.classList.remove('mobile-open');
 }
 
-// =================== SEARCH BAR & LIVE FILTERING ===================
+// =================== SMART SEARCH & WEB SPEECH API VOICE SEARCH ===================
 const searchInput = document.getElementById('searchInput');
-const searchBtn = document.querySelector('.search-btn');
+const searchClearBtn = document.getElementById('searchClearBtn');
+const searchMicBtn = document.getElementById('searchMicBtn');
+const searchSuggestions = document.getElementById('searchSuggestions');
+
+const TRENDING_KEYWORDS = ['Madhu Shant', 'Nirog Sugar', 'Liver Detox', 'Joint Relieve', 'Diabetes Care', 'Capsules', 'Sugar Free Powder'];
+
+function toggleSearchClearBtn() {
+  if (!searchInput || !searchClearBtn) return;
+  searchClearBtn.style.display = searchInput.value.trim().length > 0 ? 'block' : 'none';
+}
+
+function clearSearchInput() {
+  if (searchInput) {
+    searchInput.value = '';
+    toggleSearchClearBtn();
+    hideSearchSuggestions();
+    filterProducts('all');
+  }
+}
+
+function showSearchSuggestions() {
+  if (!searchSuggestions) return;
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+  if (query.length === 0) {
+    // Show Trending Keywords when input is empty
+    searchSuggestions.innerHTML = `
+      <div class="suggestion-section-title"><i class="fas fa-fire" style="color:var(--accent-orange)"></i> Trending Ayurvedic Searches</div>
+      <div class="suggestion-tags-group">
+        ${TRENDING_KEYWORDS.map(tag => `<span class="suggestion-tag-pill" onclick="selectSearchTag('${tag}')">${tag}</span>`).join('')}
+      </div>
+    `;
+    searchSuggestions.style.display = 'block';
+    return;
+  }
+
+  // Find matching product cards for live preview
+  const cards = document.querySelectorAll('.product-card');
+  const matches = [];
+
+  cards.forEach(card => {
+    const nameEl = card.querySelector('.product-name');
+    const catEl = card.querySelector('.product-category');
+    const imgEl = card.querySelector('.product-img-wrapper img');
+    const priceEl = card.querySelector('.price-sale');
+
+    const name = nameEl ? nameEl.textContent : '';
+    const category = catEl ? catEl.textContent : '';
+    const imgSrc = imgEl ? imgEl.getAttribute('src') : '';
+    const price = priceEl ? priceEl.textContent : 'From ₹3,500';
+    const cardId = card.id;
+
+    if (name.toLowerCase().includes(query) || category.toLowerCase().includes(query)) {
+      matches.push({ id: cardId, name, category, imgSrc, price });
+    }
+  });
+
+  if (matches.length > 0) {
+    searchSuggestions.innerHTML = `
+      <div class="suggestion-section-title"><i class="fas fa-sparkles" style="color:var(--accent-gold)"></i> Matching Products (${matches.length})</div>
+      ${matches.map(m => `
+        <div class="suggestion-item-mini" onclick="selectSuggestedProduct('${m.id}')">
+          <img src="${m.imgSrc}" alt="${m.name}" />
+          <div class="suggestion-item-info">
+            <div class="suggestion-item-title">${m.name}</div>
+            <div class="suggestion-item-cat">${m.category}</div>
+          </div>
+          <div class="suggestion-item-price">${m.price}</div>
+        </div>
+      `).join('')}
+    `;
+    searchSuggestions.style.display = 'block';
+  } else {
+    searchSuggestions.innerHTML = `
+      <div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">
+        <i class="fas fa-magnifying-glass" style="font-size:24px;margin-bottom:6px;display:block;opacity:0.5;"></i>
+        No matching Ayurvedic products found for "${query}".
+      </div>
+    `;
+    searchSuggestions.style.display = 'block';
+  }
+}
+
+function hideSearchSuggestions() {
+  if (searchSuggestions) {
+    setTimeout(() => { searchSuggestions.style.display = 'none'; }, 200);
+  }
+}
+
+function selectSearchTag(tag) {
+  if (searchInput) {
+    searchInput.value = tag;
+    toggleSearchClearBtn();
+    executeSearch();
+    hideSearchSuggestions();
+  }
+}
+
+function selectSuggestedProduct(cardId) {
+  const targetCard = document.getElementById(cardId);
+  const bestsellers = document.getElementById('bestsellers');
+
+  if (targetCard) {
+    document.querySelectorAll('.product-card').forEach(c => c.style.display = 'none');
+    targetCard.style.display = 'flex';
+    targetCard.style.opacity = '1';
+    if (bestsellers) bestsellers.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    hideSearchSuggestions();
+  }
+}
 
 function executeSearch() {
-  const query = searchInput.value.trim().toLowerCase();
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  hideSearchSuggestions();
+
   if (!query) {
     filterProducts('all');
     return;
@@ -459,22 +570,82 @@ function executeSearch() {
   }
 }
 
+// Web Speech API Voice Search Implementation (English & Hindi)
+function startVoiceSearch() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    showToast('⚠️ Voice search is not supported on this browser. Please use Google Chrome or Edge.');
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = 'en-IN'; // Indian English & Hindi voice recognition
+
+  if (searchMicBtn) {
+    searchMicBtn.classList.add('recording-active');
+  }
+
+  showToast('🎙️ Listening... Speak your search query in English or Hindi');
+
+  recognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    if (searchInput) {
+      searchInput.value = transcript;
+      toggleSearchClearBtn();
+      showSearchSuggestions();
+    }
+  };
+
+  recognition.onspeechend = () => {
+    recognition.stop();
+    if (searchMicBtn) searchMicBtn.classList.remove('recording-active');
+    executeSearch();
+  };
+
+  recognition.onerror = (event) => {
+    if (searchMicBtn) searchMicBtn.classList.remove('recording-active');
+    if (event.error !== 'no-speech') {
+      showToast(`⚠️ Voice search: ${event.error}`);
+    }
+  };
+
+  recognition.onend = () => {
+    if (searchMicBtn) searchMicBtn.classList.remove('recording-active');
+  };
+
+  try {
+    recognition.start();
+  } catch (e) {
+    console.error('Voice search start error:', e);
+  }
+}
+
 if (searchInput) {
   searchInput.addEventListener('input', () => {
-    if (searchInput.value.trim().length > 1) {
-      executeSearch();
-    } else if (searchInput.value.trim().length === 0) {
-      filterProducts('all');
-    }
+    toggleSearchClearBtn();
+    showSearchSuggestions();
+  });
+  searchInput.addEventListener('focus', () => {
+    showSearchSuggestions();
   });
   searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') executeSearch();
   });
 }
 
-if (searchBtn) {
-  searchBtn.addEventListener('click', executeSearch);
-}
+// Close suggestions on outside click
+document.addEventListener('click', (e) => {
+  const searchContainer = document.querySelector('.search-container');
+  if (searchContainer && !searchContainer.contains(e.target)) {
+    if (searchSuggestions) searchSuggestions.style.display = 'none';
+  }
+});
 
 // =================== SMOOTH NAV LINK SCROLL ===================
 document.querySelectorAll('a[href^="#"]').forEach(link => {
