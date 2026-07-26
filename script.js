@@ -120,7 +120,7 @@ slideDots.forEach((dot, i) => {
 startSlideShow();
 
 // Swipe support
-let touchStartX = 0;
+var touchStartX = 0;
 const heroSlider = document.getElementById('heroSlider');
 
 heroSlider.addEventListener('touchstart', (e) => {
