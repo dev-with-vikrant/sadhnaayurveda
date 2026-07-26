@@ -1258,6 +1258,27 @@ function submitCustomerReview(e) {
 }
 window.submitCustomerReview = submitCustomerReview;
 
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  const input = e.target.querySelector('input[type="email"]');
+  const email = input ? input.value.trim() : '';
+
+  if (!email || !email.includes('@')) {
+    showToast('⚠️ Please enter a valid email address.');
+    return;
+  }
+
+  const subscribers = JSON.parse(localStorage.getItem('sadhna-subscribers') || '[]');
+  if (!subscribers.includes(email)) {
+    subscribers.push(email);
+    localStorage.setItem('sadhna-subscribers', JSON.stringify(subscribers));
+  }
+
+  if (input) input.value = '';
+  showToast(`📩 Subscribed successfully! ${email} will receive exclusive offer updates & 10% coupon.`);
+}
+window.subscribeNewsletter = subscribeNewsletter;
+
 function triggerAvatarUpload() {
   const fileInput = document.getElementById('userAvatarFileInput');
   if (fileInput) fileInput.click();
