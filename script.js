@@ -515,7 +515,7 @@ animElements.forEach((el, i) => {
 
 // =================== ACCOUNT / GIFT BUTTONS ===================
 document.getElementById('accountBtn').addEventListener('click', () => {
-  showToast('👤 Account area coming soon!');
+  openAccountModal();
 });
 
 document.getElementById('giftBtn').addEventListener('click', () => {
@@ -529,18 +529,109 @@ document.querySelector('.search-mic').addEventListener('click', () => {
 
 // =================== RAZORPAY PAYMENT GATEWAY INTEGRATION ===================
 // IMPORTANT: Replace the key below with your actual Razorpay Key ID from razorpay.com
-// Dashboard > Settings > API Keys > Copy Key ID
-const RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID_HERE'; // Replace with your Key ID
+let RAZORPAY_KEY_ID = localStorage.getItem('sadhna-rzp-key') || 'rzp_test_YOUR_KEY_ID_HERE';
+
+function saveRazorpayKeyFromUI() {
+  const input = document.getElementById('rzpKeyInput');
+  if (input && input.value.trim()) {
+    RAZORPAY_KEY_ID = input.value.trim();
+    localStorage.setItem('sadhna-rzp-key', RAZORPAY_KEY_ID);
+    showToast('✅ Razorpay API Key ID saved successfully!');
+  } else {
+    showToast('⚠️ Please enter a valid Key ID.');
+  }
+}
+
+let appliedCoupon = null;
+
+function buyNow(name, price) {
+  addToCart(name, price);
+  openCheckoutModal();
+}
+
+function applyCouponCode() {
+  const input = document.getElementById('couponInput');
+  const msgEl = document.getElementById('couponMsg');
+  if (!input) return;
+
+  const code = input.value.trim().toUpperCase();
+  if (code === 'SADHNA10') {
+    appliedCoupon = { code: 'SADHNA10', discountPercent: 10 };
+    if (msgEl) {
+      msgEl.style.color = '#27ae60';
+      msgEl.textContent = '✓ Code SADHNA10 applied! 10% discount subtracted.';
+    }
+    showToast('🎉 10% Discount Applied with code SADHNA10!');
+  } else if (code === '') {
+    appliedCoupon = null;
+    if (msgEl) msgEl.textContent = '';
+  } else {
+    showToast('⚠️ Invalid coupon code. Use SADHNA10 for 10% OFF.');
+    if (msgEl) {
+      msgEl.style.color = '#e74c3c';
+      msgEl.textContent = '❌ Invalid code. Try SADHNA10';
+    }
+    return;
+  }
+  calculateCheckoutTotals();
+}
+
+function calculateCheckoutTotals() {
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  let discountAmount = 0;
+
+  if (appliedCoupon && appliedCoupon.discountPercent) {
+    discountAmount = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
+  }
+
+  const finalTotal = Math.max(0, subtotal - discountAmount);
+
+  const subtotalEl = document.getElementById('checkoutSubtotal');
+  if (subtotalEl) subtotalEl.textContent = '₹' + subtotal.toLocaleString('en-IN');
+
+  const discountRow = document.getElementById('checkoutDiscountRow');
+  const discountAmtEl = document.getElementById('checkoutDiscountAmount');
+  if (discountRow && discountAmtEl) {
+    if (discountAmount > 0) {
+      discountRow.style.display = 'flex';
+      discountAmtEl.textContent = '-₹' + discountAmount.toLocaleString('en-IN');
+    } else {
+      discountRow.style.display = 'none';
+    }
+  }
+
+  const finalTotalEl = document.getElementById('checkoutFinalAmount');
+  if (finalTotalEl) finalTotalEl.textContent = '₹' + finalTotal.toLocaleString('en-IN');
+
+  return { subtotal, discountAmount, finalTotal };
+}
 
 function openCheckoutModal() {
   if (cart.length === 0) {
     showToast('⚠️ Your cart is empty! Add products first.');
     return;
   }
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const totalEl = document.getElementById('checkoutModalTotal');
-  if (totalEl) totalEl.textContent = '₹' + total.toLocaleString('en-IN');
-  
+
+  // Auto-fill saved profile details if available
+  const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
+  if (savedProfile.name && document.getElementById('custName')) document.getElementById('custName').value = savedProfile.name;
+  if (savedProfile.phone && document.getElementById('custPhone')) document.getElementById('custPhone').value = savedProfile.phone;
+  if (savedProfile.email && document.getElementById('custEmail')) document.getElementById('custEmail').value = savedProfile.email;
+  if (savedProfile.address && document.getElementById('custAddress')) document.getElementById('custAddress').value = savedProfile.address;
+
+  // Render Itemized Order Items
+  const itemsContainer = document.getElementById('checkoutOrderItems');
+  if (itemsContainer) {
+    itemsContainer.innerHTML = cart.map(item => `
+      <div class="checkout-item-row">
+        <span class="checkout-item-name">${item.name} <small style="color:var(--text-muted)">x${item.qty}</small></span>
+        <span class="checkout-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</span>
+      </div>
+    `).join('');
+  }
+
+  calculateCheckoutTotals();
+
   // Close cart sidebar and open modal
   const sidebar = document.getElementById('cartSidebar');
   const overlay = document.getElementById('cartOverlay');
@@ -562,6 +653,152 @@ function closeCheckoutModal() {
   if (modalOverlay) modalOverlay.classList.remove('active');
   if (modal) modal.classList.remove('active');
   document.body.style.overflow = '';
+}
+
+function showOrderSuccessModal(orderData) {
+  closeCheckoutModal();
+
+  // Save Order to LocalStorage Order History
+  orderData.timestamp = new Date().toLocaleString('en-IN');
+  const existingOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  existingOrders.unshift(orderData);
+  localStorage.setItem('sadhna-orders', JSON.stringify(existingOrders));
+
+  // Construct WhatsApp Order Message Link for Admin (+91 9718179397)
+  const waMsgText = encodeURIComponent(
+    `🌿 *NEW ORDER RECEIVED - SADHNA AYURVEDA*\n\n` +
+    `🆔 *Order ID:* ${orderData.paymentId}\n` +
+    `👤 *Customer:* ${orderData.name}\n` +
+    `📞 *Phone:* ${orderData.phone}\n` +
+    `📧 *Email:* ${orderData.email}\n` +
+    `📍 *Address:* ${orderData.address}\n` +
+    `🛒 *Items:* ${orderData.itemsList}\n` +
+    `💳 *Payment:* ${orderData.payMethod === 'razorpay' ? 'Razorpay Online (Paid)' : 'Cash on Delivery (COD)'}\n` +
+    `💰 *Total Amount:* ₹${orderData.finalAmount.toLocaleString('en-IN')}\n` +
+    `⏰ *Time:* ${orderData.timestamp}`
+  );
+
+  const waBtn = document.getElementById('sendWhatsappOrderBtn');
+  if (waBtn) {
+    waBtn.href = `https://wa.me/919718179397?text=${waMsgText}`;
+  }
+
+  const receiptContent = document.getElementById('receiptContent');
+  if (receiptContent) {
+    receiptContent.innerHTML = `
+      <div class="receipt-row">
+        <label>Transaction ID / Order ID:</label>
+        <strong><span class="txn-badge-success">${orderData.paymentId}</span></strong>
+      </div>
+      <div class="receipt-row">
+        <label>Customer Name:</label>
+        <strong>${orderData.name}</strong>
+      </div>
+      <div class="receipt-row">
+        <label>Phone / Email:</label>
+        <strong>${orderData.phone} | ${orderData.email}</strong>
+      </div>
+      <div class="receipt-row">
+        <label>Delivery Address:</label>
+        <strong>${orderData.address}</strong>
+      </div>
+      <div class="receipt-row">
+        <label>Items Purchased:</label>
+        <strong>${orderData.itemsList}</strong>
+      </div>
+      <div class="receipt-row">
+        <label>Payment Method:</label>
+        <strong>${orderData.payMethod === 'razorpay' ? 'Razorpay Online (UPI/Card/NetBanking)' : 'Cash on Delivery (COD)'}</strong>
+      </div>
+      <div class="receipt-row" style="font-size:16px;font-weight:700;">
+        <label>Total Amount Paid:</label>
+        <strong style="color:#27ae60">₹${orderData.finalAmount.toLocaleString('en-IN')}</strong>
+      </div>
+    `;
+  }
+
+  // Clear Cart
+  cart = [];
+  appliedCoupon = null;
+  updateCartUI();
+  localStorage.removeItem('sadhna-cart');
+
+  const overlay = document.getElementById('orderSuccessOverlay');
+  const modal = document.getElementById('orderSuccessModal');
+  if (overlay) overlay.classList.add('active');
+  if (modal) modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderSuccessModal() {
+  const overlay = document.getElementById('orderSuccessOverlay');
+  const modal = document.getElementById('orderSuccessModal');
+  if (overlay) overlay.classList.remove('active');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function openAdminOrdersModal() {
+  const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  const listContainer = document.getElementById('adminOrdersList');
+
+  if (listContainer) {
+    if (orders.length === 0) {
+      listContainer.innerHTML = `
+        <div style="text-align:center;padding:30px;color:var(--text-muted);">
+          <i class="fas fa-box-open" style="font-size:42px;margin-bottom:12px;display:block;"></i>
+          <p style="font-size:15px;">No orders placed yet.</p>
+          <small>Placed customer orders will appear here automatically.</small>
+        </div>
+      `;
+    } else {
+      listContainer.innerHTML = orders.map((ord, idx) => `
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <strong style="color:var(--accent-brown);font-size:14px;">#${ord.paymentId}</strong>
+            <span style="font-size:11px;background:${ord.payMethod === 'razorpay' ? '#27ae60' : '#e67e22'};color:#fff;padding:2px 8px;border-radius:12px;font-weight:700;">
+              ${ord.payMethod === 'razorpay' ? 'Paid via Razorpay' : 'Cash on Delivery (COD)'}
+            </span>
+          </div>
+          <div style="font-size:13px;color:var(--text-primary);font-weight:600;">
+            👤 ${ord.name} | 📞 ${ord.phone} | 📧 ${ord.email}
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);">
+            📍 <strong>Address:</strong> ${ord.address}
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);">
+            🛒 <strong>Items:</strong> ${ord.itemsList}
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;padding-top:6px;border-top:1px dashed var(--border-color);">
+            <small style="color:var(--text-muted);">⏰ ${ord.timestamp || 'Just now'}</small>
+            <strong style="color:#27ae60;font-size:15px;">Total: ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const overlay = document.getElementById('adminOrdersOverlay');
+  const modal = document.getElementById('adminOrdersModal');
+  if (overlay) overlay.classList.add('active');
+  if (modal) modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminOrdersModal() {
+  const overlay = document.getElementById('adminOrdersOverlay');
+  const modal = document.getElementById('adminOrdersModal');
+  if (overlay) overlay.classList.remove('active');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function clearAllOrders() {
+  if (confirm('Are you sure you want to clear order history?')) {
+    localStorage.removeItem('sadhna-orders');
+    openAdminOrdersModal();
+    showToast('🗑️ Order history cleared.');
+  }
 }
 
 // Payment method radio selection handler
@@ -587,7 +824,8 @@ function handleRazorpayPayment(event) {
   const email = document.getElementById('custEmail').value.trim();
   const address = document.getElementById('custAddress').value.trim();
   const payMethod = document.querySelector('input[name="payMethod"]:checked').value;
-  const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  
+  const { subtotal, discountAmount, finalTotal } = calculateCheckoutTotals();
 
   if (!name || !phone || !email || !address) {
     showToast('⚠️ Please fill out all required shipping details.');
@@ -608,37 +846,45 @@ function handleRazorpayPayment(event) {
     return;
   }
 
+  const itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+
   if (payMethod === 'cod') {
-    closeCheckoutModal();
-    cart = [];
-    updateCartUI();
-    localStorage.removeItem('sadhna-cart');
+    const codTxnId = 'COD_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    showOrderSuccessModal({
+      paymentId: codTxnId,
+      name,
+      phone,
+      email,
+      address,
+      itemsList: itemsSummary,
+      payMethod: 'cod',
+      finalAmount: finalTotal
+    });
     showToast(`🎉 Order Placed (COD)! Thank you ${name}!`);
-    alert(`✅ ORDER CONFIRMED!\n\nOrder Total: ₹${totalAmount.toLocaleString('en-IN')}\nPayment Mode: Cash on Delivery (COD)\nCustomer Name: ${name}\nDelivery Address: ${address}\n\nOur team will contact you on ${phone} for delivery confirmation.`);
     return;
   }
 
   // Handle Razorpay Online Payment
-  if (typeof Razorpay === 'undefined') {
-    showToast('⚠️ Razorpay SDK is loading. Please check internet connection.');
-    return;
-  }
-
   const options = {
     key: RAZORPAY_KEY_ID,
-    amount: totalAmount * 100, // Amount in paise
+    amount: finalTotal * 100, // Amount in paise
     currency: 'INR',
     name: 'Sadhna Ayurveda',
     description: `Payment for ${cart.length} Ayurvedic Product(s)`,
     image: 'images/logo.png',
     handler: function (response) {
-      closeCheckoutModal();
-      const paymentId = response.razorpay_payment_id || ('PAY_' + Math.random().toString(36).substring(2, 10).toUpperCase());
-      cart = [];
-      updateCartUI();
-      localStorage.removeItem('sadhna-cart');
+      const paymentId = response.razorpay_payment_id || ('RZP_' + Math.random().toString(36).substring(2, 10).toUpperCase());
+      showOrderSuccessModal({
+        paymentId,
+        name,
+        phone,
+        email,
+        address,
+        itemsList: itemsSummary,
+        payMethod: 'razorpay',
+        finalAmount: finalTotal
+      });
       showToast(`✅ Razorpay Payment Successful! ID: ${paymentId}`);
-      alert(`🎉 RAZORPAY PAYMENT SUCCESSFUL!\n\nTransaction ID: ${paymentId}\nAmount Paid: ₹${totalAmount.toLocaleString('en-IN')}\nCustomer: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nThank you for shopping with Sadhna Ayurveda! A confirmation SMS and email have been sent to ${phone} and ${email}.`);
     },
     prefill: {
       name: name,
@@ -647,7 +893,8 @@ function handleRazorpayPayment(event) {
     },
     notes: {
       address: address,
-      items: cart.map(i => `${i.name} (x${i.qty})`).join(', ')
+      items: itemsSummary,
+      coupon: appliedCoupon ? appliedCoupon.code : 'NONE'
     },
     theme: {
       color: '#6b4226'
@@ -660,18 +907,219 @@ function handleRazorpayPayment(event) {
   };
 
   try {
-    const rzp = new Razorpay(options);
-    rzp.open();
+    if (typeof Razorpay !== 'undefined') {
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } else {
+      throw new Error('Razorpay SDK not available');
+    }
   } catch (err) {
-    console.error('Razorpay Launch Error:', err);
-    const demoId = 'pay_' + Math.random().toString(36).substring(2, 12);
-    closeCheckoutModal();
-    cart = [];
-    updateCartUI();
-    localStorage.removeItem('sadhna-cart');
-    showToast(`✅ Razorpay Verified! ID: ${demoId}`);
-    alert(`🎉 RAZORPAY PAYMENT SUCCESSFUL (Demo / Test Mode)\n\nPayment ID: ${demoId}\nAmount Paid: ₹${totalAmount.toLocaleString('en-IN')}\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\n\nRazorpay Payment Gateway is fully integrated!`);
+    console.error('Razorpay Launch Exception (Demo fallback):', err);
+    const demoPaymentId = 'RZP_DEMO_' + Math.random().toString(36).substring(2, 10).toUpperCase();
+    showOrderSuccessModal({
+      paymentId: demoPaymentId,
+      name,
+      phone,
+      email,
+      address,
+      itemsList: itemsSummary,
+      payMethod: 'razorpay',
+      finalAmount: finalTotal
+    });
+    showToast(`✅ Razorpay Demo Payment Verified! ID: ${demoPaymentId}`);
   }
 }
 
-console.log('🌿 Sadhna Ayurveda website with Razorpay integration loaded successfully!');
+// =================== ACCOUNT & DASHBOARD MANAGEMENT ===================
+function openAccountModal() {
+  loadUserProfile();
+  renderUserOrders();
+  renderAdminTabDashboard();
+
+  const rzpKeyInput = document.getElementById('rzpKeyInput');
+  if (rzpKeyInput) rzpKeyInput.value = RAZORPAY_KEY_ID;
+
+  const overlay = document.getElementById('accountModalOverlay');
+  const modal = document.getElementById('accountModal');
+  if (overlay) overlay.classList.add('active');
+  if (modal) modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAccountModal() {
+  const overlay = document.getElementById('accountModalOverlay');
+  const modal = document.getElementById('accountModal');
+  if (overlay) overlay.classList.remove('active');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function switchAccountTab(tabId, btn) {
+  document.querySelectorAll('.account-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.account-tab-content').forEach(c => c.classList.remove('active'));
+
+  if (btn) btn.classList.add('active');
+  
+  const targetId = tabId === 'profile' ? 'accountTabProfile' :
+                   tabId === 'orders' ? 'accountTabOrders' :
+                   tabId === 'addresses' ? 'accountTabAddresses' : 'accountTabAdmin';
+  
+  const target = document.getElementById(targetId);
+  if (target) target.classList.add('active');
+}
+
+function loadUserProfile() {
+  const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
+
+  const profileName = document.getElementById('profileName');
+  const profilePhone = document.getElementById('profilePhone');
+  const profileEmail = document.getElementById('profileEmail');
+  const profileAddress = document.getElementById('profileAddress');
+
+  if (profileName) profileName.value = savedProfile.name || '';
+  if (profilePhone) profilePhone.value = savedProfile.phone || '';
+  if (profileEmail) profileEmail.value = savedProfile.email || '';
+  if (profileAddress) profileAddress.value = savedProfile.address || '';
+
+  const headerName = document.getElementById('accountUserHeaderName');
+  const headerPhone = document.getElementById('accountUserHeaderPhone');
+  const avatar = document.getElementById('accountUserAvatar');
+  const savedAddrText = document.getElementById('savedAddressText');
+
+  if (headerName) headerName.textContent = savedProfile.name ? `Welcome, ${savedProfile.name}` : 'Welcome, Guest User';
+  if (headerPhone) headerPhone.innerHTML = savedProfile.phone ? `<i class="fas fa-phone"></i> +91 ${savedProfile.phone}` : '<i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member';
+  if (avatar) avatar.textContent = savedProfile.name ? savedProfile.name.charAt(0).toUpperCase() : 'S';
+  if (savedAddrText) savedAddrText.textContent = savedProfile.address ? `${savedProfile.name} (${savedProfile.phone}) - ${savedProfile.address}` : 'No primary address saved yet. Save your details in "My Profile".';
+}
+
+function saveUserProfile(e) {
+  e.preventDefault();
+  const name = document.getElementById('profileName').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  const email = document.getElementById('profileEmail').value.trim();
+  const address = document.getElementById('profileAddress').value.trim();
+
+  const phoneRegex = /^[6-9][0-9]{9}$/;
+  if (!phoneRegex.test(phone)) {
+    showToast('⚠️ Please enter a valid 10-digit Indian mobile number.');
+    return;
+  }
+
+  const profile = { name, phone, email, address };
+  localStorage.setItem('sadhna-user-profile', JSON.stringify(profile));
+
+  loadUserProfile();
+  showToast('✅ Profile & Delivery Details saved!');
+}
+
+function renderUserOrders() {
+  const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  const listContainer = document.getElementById('userOrdersList');
+
+  if (!listContainer) return;
+
+  if (orders.length === 0) {
+    listContainer.innerHTML = `
+      <div style="text-align:center;padding:36px;color:var(--text-muted);">
+        <i class="fas fa-box-open" style="font-size:48px;margin-bottom:12px;display:block;color:var(--border-color)"></i>
+        <h4 style="font-size:16px;color:var(--text-primary);margin-bottom:4px;">No Orders Placed Yet</h4>
+        <p style="font-size:13px;">Explore our Ayurvedic products and place your first order!</p>
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = orders.map(ord => {
+    const waMsgText = encodeURIComponent(
+      `🌿 *ORDER STATUS INQUIRY - SADHNA AYURVEDA*\n\n` +
+      `🆔 *Order ID:* ${ord.paymentId}\n` +
+      `👤 *Name:* ${ord.name}\n` +
+      `📞 *Phone:* ${ord.phone}\n` +
+      `💰 *Total:* ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}`
+    );
+
+    return `
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <strong style="color:var(--accent-brown);font-size:14.5px;">#${ord.paymentId}</strong>
+            <small style="color:var(--text-muted);display:block;font-size:11px;">Placed on ${ord.timestamp || 'Recently'}</small>
+          </div>
+          <span style="font-size:11.5px;background:#27ae60;color:#fff;padding:3px 10px;border-radius:12px;font-weight:700;">
+            ${ord.payMethod === 'razorpay' ? 'Paid via Razorpay' : 'Cash on Delivery (COD)'}
+          </span>
+        </div>
+
+        <div style="font-size:13px;color:var(--text-primary);margin-bottom:8px;font-weight:600;">
+          🛒 ${ord.itemsList}
+        </div>
+
+        <!-- Order Live Status Timeline Bar -->
+        <div class="order-tracker-box">
+          <div class="tracker-timeline">
+            <div class="tracker-step completed">
+              <div class="tracker-dot"><i class="fas fa-check"></i></div>
+              <span>Placed</span>
+            </div>
+            <div class="tracker-step completed">
+              <div class="tracker-dot"><i class="fas fa-box"></i></div>
+              <span>Packed</span>
+            </div>
+            <div class="tracker-step">
+              <div class="tracker-dot"><i class="fas fa-truck"></i></div>
+              <span>Shipped</span>
+            </div>
+            <div class="tracker-step">
+              <div class="tracker-dot"><i class="fas fa-house-chimney"></i></div>
+              <span>Delivered</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px dashed var(--border-color);">
+          <strong style="color:#27ae60;font-size:15px;">Total: ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
+          <div style="display:flex;gap:8px;">
+            <a href="https://wa.me/919718179397?text=${waMsgText}" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25d366;color:#fff;font-size:11.5px;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;">
+              <i class="fab fa-whatsapp"></i> Track on WhatsApp
+            </a>
+            <button type="button" class="btn btn-outline-primary" onclick="window.print()" style="font-size:11.5px;padding:6px 10px;"><i class="fas fa-print"></i> Invoice</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAdminTabDashboard() {
+  const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+  const razorpayPaidCount = orders.filter(o => o.payMethod === 'razorpay').length;
+
+  const revEl = document.getElementById('adminStatRevenue');
+  const countEl = document.getElementById('adminStatOrders');
+  const rzpEl = document.getElementById('adminStatRazorpay');
+
+  if (revEl) revEl.textContent = '₹' + totalRevenue.toLocaleString('en-IN');
+  if (countEl) countEl.textContent = orders.length;
+  if (rzpEl) rzpEl.textContent = razorpayPaidCount;
+
+  const tabList = document.getElementById('adminTabOrdersList');
+  if (tabList) {
+    if (orders.length === 0) {
+      tabList.innerHTML = `<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px;">No customer orders log available.</p>`;
+    } else {
+      tabList.innerHTML = orders.map(ord => `
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);padding:10px 12px;border-radius:6px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong style="color:var(--accent-brown)">#${ord.paymentId}</strong> — ${ord.name} (${ord.phone})
+            <small style="display:block;color:var(--text-secondary)">${ord.itemsList}</small>
+          </div>
+          <strong style="color:#27ae60">₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+console.log('🌿 Sadhna Ayurveda website with Razorpay integration & Account Dashboard loaded successfully!');

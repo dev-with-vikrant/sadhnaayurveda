@@ -389,9 +389,14 @@
               <span class="price-original">₹5,000</span>
               <span class="price-sale">From ₹3,500</span>
             </div>
-            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Madhu Shant Caps', 3500)" aria-label="Add to cart">
-              <i class="fas fa-shopping-bag"></i> Add to Cart
-            </button>
+            <div class="product-btn-group">
+              <button class="btn btn-add-cart" onclick="addToCart('Sadhna Madhu Shant Caps', 3500)" aria-label="Add to cart">
+                <i class="fas fa-shopping-bag"></i> Add to Cart
+              </button>
+              <button class="btn btn-buy-now" onclick="buyNow('Sadhna Madhu Shant Caps', 3500)" aria-label="Buy now with Razorpay">
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
         <!-- Product 2 -->
@@ -417,9 +422,14 @@
               <span class="price-original">₹5,000</span>
               <span class="price-sale">From ₹3,500</span>
             </div>
-            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Nirog Sugar Powder', 3500)" aria-label="Add to cart">
-              <i class="fas fa-shopping-bag"></i> Add to Cart
-            </button>
+            <div class="product-btn-group">
+              <button class="btn btn-add-cart" onclick="addToCart('Sadhna Nirog Sugar Powder', 3500)" aria-label="Add to cart">
+                <i class="fas fa-shopping-bag"></i> Add to Cart
+              </button>
+              <button class="btn btn-buy-now" onclick="buyNow('Sadhna Nirog Sugar Powder', 3500)" aria-label="Buy now with Razorpay">
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
         <!-- Product 3 -->
@@ -446,9 +456,14 @@
               <span class="price-original">₹5,000</span>
               <span class="price-sale">From ₹3,500</span>
             </div>
-            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Liver Detox Care', 3500)" aria-label="Add to cart">
-              <i class="fas fa-shopping-bag"></i> Add to Cart
-            </button>
+            <div class="product-btn-group">
+              <button class="btn btn-add-cart" onclick="addToCart('Sadhna Liver Detox Care', 3500)" aria-label="Add to cart">
+                <i class="fas fa-shopping-bag"></i> Add to Cart
+              </button>
+              <button class="btn btn-buy-now" onclick="buyNow('Sadhna Liver Detox Care', 3500)" aria-label="Buy now with Razorpay">
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
         <!-- Product 4 -->
@@ -474,9 +489,14 @@
               <span class="price-original">₹5,000</span>
               <span class="price-sale">From ₹3,500</span>
             </div>
-            <button class="btn btn-add-cart" onclick="addToCart('Sadhna Joint Relieve Caps', 3500)" aria-label="Add to cart">
-              <i class="fas fa-shopping-bag"></i> Add to Cart
-            </button>
+            <div class="product-btn-group">
+              <button class="btn btn-add-cart" onclick="addToCart('Sadhna Joint Relieve Caps', 3500)" aria-label="Add to cart">
+                <i class="fas fa-shopping-bag"></i> Add to Cart
+              </button>
+              <button class="btn btn-buy-now" onclick="buyNow('Sadhna Joint Relieve Caps', 3500)" aria-label="Buy now with Razorpay">
+                <i class="fas fa-bolt"></i> Buy Now
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -846,8 +866,37 @@
     </div>
     <div class="modal-body">
       <div class="checkout-summary-box">
-        <p>Order Total: <strong id="checkoutModalTotal">₹0</strong></p>
-        <span><i class="fas fa-truck-fast"></i> Free Shipping Included</span>
+        <label style="font-size:12px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px;"><i class="fas fa-list-check"></i> Order Summary</label>
+        <div class="checkout-order-items" id="checkoutOrderItems">
+          <!-- Dynamic order items rendered via JS -->
+        </div>
+
+        <div class="coupon-box">
+          <div class="coupon-input-group">
+            <input type="text" id="couponInput" placeholder="Promo Code (e.g. SADHNA10)" />
+            <button type="button" class="btn-coupon" onclick="applyCouponCode()">Apply</button>
+          </div>
+          <div id="couponMsg" style="font-size:12px;margin-top:4px;font-weight:600;"></div>
+        </div>
+
+        <div class="order-breakdown">
+          <div class="breakdown-row">
+            <span>Subtotal</span>
+            <span id="checkoutSubtotal">₹0</span>
+          </div>
+          <div class="breakdown-row discount" id="checkoutDiscountRow" style="display:none">
+            <span>Discount (SADHNA10 -10%)</span>
+            <span id="checkoutDiscountAmount">-₹0</span>
+          </div>
+          <div class="breakdown-row">
+            <span>Shipping</span>
+            <span style="color:#27ae60;font-weight:600;"><i class="fas fa-truck-fast"></i> FREE</span>
+          </div>
+          <div class="breakdown-row total">
+            <span>Final Amount</span>
+            <strong id="checkoutFinalAmount" style="color:var(--accent-brown)">₹0</strong>
+          </div>
+        </div>
       </div>
       <form id="checkoutForm" onsubmit="handleRazorpayPayment(event)">
         <div class="form-group">
@@ -902,6 +951,162 @@
         <span><i class="fas fa-lock"></i> 256-Bit SSL Encrypted</span>
         <span><i class="fas fa-certificate"></i> Official Razorpay Partner</span>
         <span><i class="fas fa-rotate-left"></i> 7-Day Easy Returns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ORDER SUCCESS / RECEIPT MODAL ===================== -->
+  <div class="modal-overlay" id="orderSuccessOverlay" onclick="closeOrderSuccessModal()"></div>
+  <div class="modal-dialog checkout-modal success-modal" id="orderSuccessModal">
+    <div class="modal-header">
+      <h3><i class="fas fa-circle-check" style="color:#27ae60"></i> Order Confirmed!</h3>
+      <button class="modal-close" onclick="closeOrderSuccessModal()" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="success-icon-wrapper">
+        <i class="fas fa-check"></i>
+      </div>
+      <h2 style="font-family:var(--font-display);font-size:22px;color:var(--text-primary);margin-bottom:6px;">Thank You for Your Order!</h2>
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">Your order has been placed successfully. Click below to notify our team directly via WhatsApp.</p>
+      
+      <a id="sendWhatsappOrderBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25d366;color:#ffffff;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:8px;margin-bottom:16px;text-decoration:none;box-shadow:0 4px 15px rgba(37,211,102,0.3);">
+        <i class="fab fa-whatsapp" style="font-size:20px;"></i> Send Order Details to Store Owner (+91 9718179397)
+      </a>
+
+      <div class="receipt-card" id="receiptContent">
+        <!-- Rendered dynamically via script.js -->
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button type="button" class="btn btn-primary" onclick="closeOrderSuccessModal()"><i class="fas fa-shopping-bag"></i> Continue Shopping</button>
+        <button type="button" class="btn btn-outline-primary" onclick="window.print()"><i class="fas fa-print"></i> Print Receipt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ACCOUNT & DASHBOARD MODAL ===================== -->
+  <div class="modal-overlay" id="accountModalOverlay" onclick="closeAccountModal()"></div>
+  <div class="modal-dialog checkout-modal account-modal-dialog" id="accountModal">
+    <div class="modal-header">
+      <h3><i class="fas fa-user-gear" style="color:var(--accent-brown)"></i> Account &amp; Dashboard</h3>
+      <button class="modal-close" onclick="closeAccountModal()" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+    </div>
+    
+    <!-- Tabbed Navigation Bar -->
+    <div class="account-nav-tabs">
+      <button type="button" class="account-tab-btn active" onclick="switchAccountTab('profile', this)"><i class="fas fa-user"></i> My Profile</button>
+      <button type="button" class="account-tab-btn" onclick="switchAccountTab('orders', this)"><i class="fas fa-box-open"></i> My Orders</button>
+      <button type="button" class="account-tab-btn" onclick="switchAccountTab('addresses', this)"><i class="fas fa-location-dot"></i> Saved Addresses</button>
+      <button type="button" class="account-tab-btn" onclick="switchAccountTab('admin', this)"><i class="fas fa-chart-line"></i> Store Admin &amp; Razorpay</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- TAB 1: MY PROFILE -->
+      <div class="account-tab-content active" id="accountTabProfile">
+        <div class="user-profile-header">
+          <div class="user-avatar" id="accountUserAvatar">S</div>
+          <div class="user-info-text">
+            <h4 id="accountUserHeaderName">Welcome, Guest</h4>
+            <p id="accountUserHeaderPhone"><i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member</p>
+          </div>
+        </div>
+
+        <form id="profileForm" onsubmit="saveUserProfile(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profileName"><i class="fas fa-user"></i> Full Name *</label>
+              <input type="text" id="profileName" placeholder="Your Name" required />
+            </div>
+            <div class="form-group">
+              <label for="profilePhone"><i class="fas fa-phone"></i> Mobile Number *</label>
+              <input type="tel" id="profilePhone" placeholder="10-digit mobile number" pattern="[6-9][0-9]{9}" maxlength="10" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="profileEmail"><i class="fas fa-envelope"></i> Email Address *</label>
+            <input type="email" id="profileEmail" placeholder="yourname@gmail.com" required />
+          </div>
+          <div class="form-group">
+            <label for="profileAddress"><i class="fas fa-location-dot"></i> Default Shipping Address &amp; Pincode *</label>
+            <textarea id="profileAddress" rows="2" placeholder="House No., Street, Landmark, City, State & Pincode" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-floppy-disk"></i> Save Profile Details</button>
+        </form>
+      </div>
+
+      <!-- TAB 2: MY ORDERS -->
+      <div class="account-tab-content" id="accountTabOrders">
+        <div id="userOrdersList" style="max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+          <!-- Dynamic user orders rendered via JS -->
+        </div>
+      </div>
+
+      <!-- TAB 3: SAVED ADDRESSES -->
+      <div class="account-tab-content" id="accountTabAddresses">
+        <div id="savedAddressesList" style="display:flex;flex-direction:column;gap:12px;">
+          <div style="background:var(--bg-body);border:1px solid var(--border-color);padding:16px;border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <strong><i class="fas fa-house" style="color:var(--accent-brown)"></i> Primary Home Address</strong>
+              <span style="font-size:11px;background:#27ae60;color:#fff;padding:2px 8px;border-radius:12px;">Default</span>
+            </div>
+            <p id="savedAddressText" style="font-size:13.5px;color:var(--text-secondary);margin:0;">No primary address saved yet. Save your details in 'My Profile'.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: STORE ADMIN & RAZORPAY CONFIG -->
+      <div class="account-tab-content" id="accountTabAdmin">
+        <div class="admin-stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="adminStatRevenue">₹0</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="adminStatOrders">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="adminStatRazorpay">0</div>
+            <div class="stat-label">Razorpay Online Paid</div>
+          </div>
+        </div>
+
+        <div class="rzp-key-config-box">
+          <label style="font-size:13px;font-weight:700;color:var(--text-primary);display:block;margin-bottom:6px;">
+            <i class="fas fa-key" style="color:var(--accent-brown)"></i> Razorpay API Key ID Configuration
+          </label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="rzpKeyInput" placeholder="rzp_test_..." style="flex:1;padding:10px 12px;font-size:13px;border:1px solid var(--border-color);border-radius:6px;background:var(--bg-card);color:var(--text-primary);" />
+            <button type="button" class="btn btn-primary" onclick="saveRazorpayKeyFromUI()" style="white-space:nowrap;font-size:13px;padding:8px 16px;"><i class="fas fa-check"></i> Save Key</button>
+          </div>
+          <small style="color:var(--text-muted);margin-top:4px;display:block;">Copy your Key ID from Razorpay Dashboard &gt; Settings &gt; API Keys.</small>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:600;color:var(--text-primary)">All Store Orders Log:</span>
+          <button type="button" onclick="clearAllOrders()" class="btn btn-outline-primary" style="font-size:12px;padding:4px 10px;color:var(--accent-red);border-color:var(--accent-red);"><i class="fas fa-trash-can"></i> Clear History</button>
+        </div>
+        <div id="adminTabOrdersList" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+          <!-- Dynamic admin orders rendered via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== STORE ADMIN / ORDERS DASHBOARD MODAL ===================== -->
+  <div class="modal-overlay" id="adminOrdersOverlay" onclick="closeAdminOrdersModal()"></div>
+  <div class="modal-dialog checkout-modal" id="adminOrdersModal" style="max-width:700px;">
+    <div class="modal-header">
+      <h3><i class="fas fa-boxes-stacked" style="color:var(--accent-brown)"></i> Store Orders Dashboard</h3>
+      <button class="modal-close" onclick="closeAdminOrdersModal()" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <span style="font-size:14px;color:var(--text-secondary)">All Placed Customer Orders:</span>
+        <button type="button" onclick="clearAllOrders()" class="btn btn-outline-primary" style="font-size:12px;padding:4px 10px;color:var(--accent-red);border-color:var(--accent-red);"><i class="fas fa-trash-can"></i> Clear History</button>
+      </div>
+      <div id="adminOrdersList" style="max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+        <!-- Rendered dynamically via script.js -->
       </div>
     </div>
   </div>
