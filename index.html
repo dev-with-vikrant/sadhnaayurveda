@@ -1270,10 +1270,7 @@
   <div class="modal-dialog checkout-modal account-modal-dialog" id="accountModal">
     <div class="modal-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <h3><i class="fas fa-user-gear" style="color:var(--accent-brown)"></i> Account &amp; Dashboard</h3>
-        <button type="button" class="role-badge-pill" id="dashboardRolePill" onclick="toggleDashboardRole()" title="Toggle between Customer & Admin view">
-          <i class="fas fa-user-shield"></i> <span id="dashboardRoleLabel">Switch to Admin</span>
-        </button>
+        <h3><i class="fas fa-user-gear" style="color:var(--accent-brown)"></i> My Account</h3>
       </div>
       <button class="modal-close" onclick="closeAccountModal()" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
     </div>
@@ -1283,7 +1280,6 @@
       <button type="button" class="account-tab-btn active" id="navTabProfile" onclick="switchAccountTab('profile', this)"><i class="fas fa-user"></i> My Profile</button>
       <button type="button" class="account-tab-btn" id="navTabOrders" onclick="switchAccountTab('orders', this)"><i class="fas fa-box-open"></i> My Orders</button>
       <button type="button" class="account-tab-btn" id="navTabAddresses" onclick="switchAccountTab('addresses', this)"><i class="fas fa-location-dot"></i> Saved Addresses</button>
-      <button type="button" class="account-tab-btn" id="navTabAdmin" onclick="switchAccountTab('admin', this)" style="display:none;"><i class="fas fa-chart-line"></i> Store Admin &amp; Razorpay</button>
     </div>
 
     <div class="modal-body">
@@ -1365,122 +1361,6 @@
             </div>
             <p id="savedAddressText" style="font-size:13.5px;color:var(--text-secondary);margin:0;">No primary address saved yet. Save your details in 'My Profile'.</p>
           </div>
-        </div>
-      </div>
-
-      <!-- TAB 4: STORE ADMIN & RAZORPAY CONFIG -->
-      <div class="account-tab-content" id="accountTabAdmin">
-        <!-- Direct Link to Dedicated Admin Portal -->
-        <div style="background:var(--bg-card);border:1.5px solid var(--accent-brown);padding:14px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(107, 58, 31, 0.08);flex-wrap:wrap;gap:10px;">
-          <div>
-            <strong style="color:var(--accent-brown);font-size:15px;display:block;"><i class="fas fa-desktop"></i> Fullscreen Admin &amp; Order Approval Portal</strong>
-            <small style="color:var(--text-muted);font-size:12px;">Approve orders, verify stock availability, and assign AWB courier tracking.</small>
-          </div>
-          <a href="admin.html" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:12.5px;padding:8px 16px;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-            <i class="fas fa-up-right-from-square"></i> Open Admin Portal
-          </a>
-        </div>
-
-        <!-- 3 Modern Analytics Stat Cards -->
-        <div class="admin-stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon-wrapper stat-icon-revenue">
-              <i class="fas fa-indian-rupee-sign"></i>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value" id="adminStatRevenue">₹0</div>
-              <div class="stat-label">Total Revenue</div>
-              <div class="stat-trend"><i class="fas fa-arrow-trend-up"></i> Live Sales</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon-wrapper stat-icon-orders">
-              <i class="fas fa-boxes-stacked"></i>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value" id="adminStatOrders">0</div>
-              <div class="stat-label">Total Orders</div>
-              <div class="stat-trend"><i class="fas fa-check-double"></i> All Time</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon-wrapper stat-icon-rzp">
-              <i class="fas fa-shield-halved"></i>
-            </div>
-            <div class="stat-info">
-              <div class="stat-value" id="adminStatRazorpay">0</div>
-              <div class="stat-label">Razorpay Paid</div>
-              <div class="stat-trend" style="color:#25d366;"><i class="fas fa-bolt"></i> Online UPI/Cards</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Google Cloud OAuth Client ID Configuration Box -->
-        <div class="rzp-key-config-box" style="margin-bottom:16px;">
-          <div class="rzp-key-header">
-            <div class="rzp-key-title">
-              <i class="fab fa-google" style="color:#4285F4"></i> Google Cloud OAuth Client ID Configuration
-            </div>
-            <span class="badge-status-mode active-mode" id="googleClientStatusBadge">
-              <i class="fas fa-circle-check"></i> Connected
-            </span>
-          </div>
-
-          <div class="rzp-key-input-group">
-            <input type="text" id="googleClientIdInput" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com" class="rzp-key-input" />
-            <button type="button" class="btn btn-primary" onclick="saveGoogleClientIdFromUI()" style="white-space:nowrap;font-size:13px;padding:8px 16px;">
-              <i class="fas fa-check"></i> Save Client ID
-            </button>
-          </div>
-
-          <div class="rzp-help-text">
-            <i class="fas fa-circle-info"></i>
-            <span>Obtain your Client ID from <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> &gt; APIs &amp; Services &gt; Credentials &gt; OAuth 2.0 Client IDs.</span>
-          </div>
-        </div>
-
-        <!-- Razorpay API Key Configuration Box -->
-        <div class="rzp-key-config-box">
-          <div class="rzp-key-header">
-            <div class="rzp-key-title">
-              <i class="fas fa-key"></i> Razorpay API Key ID Configuration
-            </div>
-            <span class="badge-status-mode test-mode" id="rzpKeyStatusBadge">
-              <i class="fas fa-circle"></i> Test Mode
-            </span>
-          </div>
-
-          <div class="rzp-key-input-group">
-            <input type="text" id="rzpKeyInput" placeholder="rzp_test_..." class="rzp-key-input" oninput="updateRazorpayStatusBadge()" />
-            <button type="button" class="btn-copy-key" onclick="copyRazorpayKey()" title="Copy API Key to clipboard">
-              <i class="fas fa-copy"></i> Copy
-            </button>
-            <button type="button" class="btn btn-primary" onclick="saveRazorpayKeyFromUI()" style="white-space:nowrap;font-size:13px;padding:8px 16px;">
-              <i class="fas fa-check"></i> Save Key
-            </button>
-          </div>
-
-          <div class="rzp-help-text">
-            <i class="fas fa-circle-info"></i>
-            <span>How to get your key: Log in to your <a href="https://dashboard.razorpay.com" target="_blank" rel="noopener noreferrer">Razorpay Dashboard</a> &gt; Settings &gt; API Keys to copy your Key ID.</span>
-          </div>
-        </div>
-
-        <!-- Store Orders Log Header -->
-        <div class="admin-orders-log-header">
-          <span style="font-size:14px;font-weight:700;color:var(--text-primary)">
-            <i class="fas fa-list-check" style="color:var(--accent-brown)"></i> Store Orders Log:
-          </span>
-          <button type="button" onclick="confirmClearOrders()" class="btn-clear-history">
-            <i class="fas fa-trash-can"></i> Clear History
-          </button>
-        </div>
-
-        <!-- Store Orders Log Container -->
-        <div id="adminTabOrdersList" style="max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
-          <!-- Dynamic admin orders or empty state rendered via JS -->
         </div>
       </div>
     </div>

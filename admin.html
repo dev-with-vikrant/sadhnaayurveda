@@ -193,11 +193,68 @@
     </div>
   </main>
 
+  <!-- ADMIN PIN LOGIN GATE OVERLAY -->
+  <div id="adminPinGateOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(45,42,38,0.92);backdrop-filter:blur(12px);z-index:9999;display:flex;align-items:center;justify-content:center;">
+    <div style="background:#ffffff;border:1px solid #e4dac3;border-radius:20px;padding:32px 28px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+      <div style="width:64px;height:64px;border-radius:50%;background:rgba(92,58,33,0.1);color:#5c3a21;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 12px;">
+        <i class="fas fa-user-shield"></i>
+      </div>
+      <h3 style="margin:0 0 6px;color:#4a2e12;font-size:20px;">Sadhna Admin Portal</h3>
+      <p style="margin:0 0 20px;color:#7f8c8d;font-size:13px;">Enter 4-Digit Admin Security PIN (Default: <strong>1234</strong>)</p>
+
+      <form onsubmit="verifyGatePin(event)">
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:16px;">
+          <input type="password" maxlength="1" id="gatePin1" onkeyup="moveGatePin(this, 'gatePin2', null)" autofocus style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin2" onkeyup="moveGatePin(this, 'gatePin3', 'gatePin1')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin3" onkeyup="moveGatePin(this, 'gatePin4', 'gatePin2')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+          <input type="password" maxlength="1" id="gatePin4" onkeyup="moveGatePin(this, null, 'gatePin3')" style="width:48px;height:54px;font-size:22px;text-align:center;border:2px solid #e4dac3;border-radius:10px;font-weight:700;outline:none;" />
+        </div>
+
+        <div id="gatePinError" style="color:#e74c3c;font-size:13px;font-weight:600;display:none;margin-bottom:12px;">❌ Incorrect PIN. Try again.</div>
+
+        <button type="submit" class="btn-approve" style="width:100%;padding:12px;font-size:15px;border-radius:10px;background:#5c3a21;">
+          <i class="fas fa-key"></i> Unlock Admin Portal
+        </button>
+      </form>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
     let allAdminOrders = [];
     let currentFilter = 'all';
+
+    function checkAdminGate() {
+      if (sessionStorage.getItem('sadhna-admin-unlocked') === 'true') {
+        const gate = document.getElementById('adminPinGateOverlay');
+        if (gate) gate.style.display = 'none';
+        fetchAdminOrders();
+      }
+    }
+
+    function verifyGatePin(e) {
+      e.preventDefault();
+      const p1 = document.getElementById('gatePin1').value;
+      const p2 = document.getElementById('gatePin2').value;
+      const p3 = document.getElementById('gatePin3').value;
+      const p4 = document.getElementById('gatePin4').value;
+      const pin = `${p1}${p2}${p3}${p4}`;
+
+      if (pin === '1234') {
+        sessionStorage.setItem('sadhna-admin-unlocked', 'true');
+        document.getElementById('adminPinGateOverlay').style.display = 'none';
+        fetchAdminOrders();
+      } else {
+        document.getElementById('gatePinError').style.display = 'block';
+      }
+    }
+
+    function moveGatePin(current, nextId, prevId) {
+      if (current.value.length === 1 && nextId) {
+        document.getElementById(nextId).focus();
+      }
+    }
 
     async function fetchAdminOrders() {
       try {
@@ -347,7 +404,6 @@
         const data = await res.json();
         showToast(data.message || 'Order approved!');
       } catch (err) {
-        // Local fallback
         const index = allAdminOrders.findIndex(o => o.id === orderId || o.paymentId === orderId);
         if (index !== -1) {
           allAdminOrders[index].status = 'Approved';
@@ -438,7 +494,7 @@
       setTimeout(() => t.classList.remove('show'), 3200);
     }
 
-    window.onload = fetchAdminOrders;
+    window.onload = checkAdminGate;
   </script>
 </body>
 </html>
