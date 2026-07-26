@@ -721,35 +721,20 @@ button {
   max-width: 100%;
   margin: 0;
   padding: 0;
-  height: 480px;
+  background: #110b05;
   overflow: hidden;
-  background: var(--bg-secondary);
-}
-
-@media (max-width: 1200px) {
-  .hero-section {
-    height: 400px;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-section {
-    height: 320px;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-section {
-    height: 240px;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-slider {
   position: relative;
   width: 100%;
-  height: 100%;
   max-width: 100%;
-  margin: 0;
+  aspect-ratio: 16 / 7;
+  max-height: 580px;
+  min-height: 260px;
 }
 
 .hero-slide {
@@ -761,6 +746,9 @@ button {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 0.6s ease, visibility 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-slide.active {
@@ -773,7 +761,7 @@ button {
 .slide-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
   display: block;
 }
