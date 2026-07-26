@@ -1219,6 +1219,81 @@ function handleUserLogout() {
   showToast('👋 You have been logged out.');
 }
 
+// HTML5 Geolocation API Automatic Live Location Detection
+async function detectLiveLocation(targetTextareaId) {
+  const target = document.getElementById(targetTextareaId);
+  const btn = document.querySelector(`.btn-live-location[onclick*="${targetTextareaId}"]`);
+
+  if (!navigator.geolocation) {
+    showToast('⚠️ Geolocation (GPS) is not supported on this browser.');
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting Location...';
+  }
+
+  showToast('📍 Fetching your live GPS location...');
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      try {
+        // Reverse Geocoding via OpenStreetMap Nominatim API
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const data = await res.json();
+
+        if (data && data.address) {
+          const addr = data.address;
+          const road = addr.road || addr.suburb || addr.neighbourhood || '';
+          const city = addr.city || addr.town || addr.village || addr.county || '';
+          const state = addr.state || '';
+          const postcode = addr.postcode || '';
+          const country = addr.country || 'India';
+
+          const formattedAddress = [road, city, state, country, postcode ? `Pincode: ${postcode}` : '']
+            .filter(Boolean)
+            .join(', ');
+
+          if (target) {
+            target.value = formattedAddress;
+          }
+
+          showToast(`📍 Live Location Detected: ${city}, ${state}`);
+        } else {
+          if (target) target.value = `GPS Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+          showToast(`📍 GPS Location captured (${lat.toFixed(4)}, ${lon.toFixed(4)})`);
+        }
+      } catch (err) {
+        console.warn('Reverse geocoding fetch error:', err);
+        if (target) target.value = `GPS Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+        showToast('📍 GPS Location captured successfully!');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-location-crosshairs"></i> Detect Live Location';
+        }
+      }
+    },
+    (error) => {
+      console.warn('Geolocation error:', error.message);
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-location-crosshairs"></i> Detect Live Location';
+      }
+      if (error.code === error.PERMISSION_DENIED) {
+        showToast('⚠️ GPS location permission denied. Please allow location access in your browser.');
+      } else {
+        showToast('⚠️ Unable to fetch live GPS location. Please enter address manually.');
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
 function saveUserProfile(e) {
   e.preventDefault();
   const name = document.getElementById('profileName').value.trim();
