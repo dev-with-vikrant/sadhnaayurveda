@@ -1090,6 +1090,74 @@ function renderUserOrders() {
   }).join('');
 }
 
+// Role-based Dashboard Management
+let currentDashboardRole = 'customer'; // Default role is 'customer'
+
+function toggleDashboardRole() {
+  currentDashboardRole = currentDashboardRole === 'customer' ? 'admin' : 'customer';
+  applyDashboardRoleState();
+  showToast(`Switched to ${currentDashboardRole === 'admin' ? 'Store Admin' : 'Customer'} View`);
+}
+
+function applyDashboardRoleState() {
+  const roleLabel = document.getElementById('dashboardRoleLabel');
+  const navTabAdmin = document.getElementById('navTabAdmin');
+
+  if (currentDashboardRole === 'admin') {
+    if (roleLabel) roleLabel.textContent = 'Admin View (Active)';
+    if (navTabAdmin) navTabAdmin.style.display = 'flex';
+  } else {
+    if (roleLabel) roleLabel.textContent = 'Switch to Admin';
+    if (navTabAdmin) navTabAdmin.style.display = 'none';
+    // If currently on admin tab, switch back to profile
+    const activeTab = document.querySelector('.account-tab-content.active');
+    if (activeTab && activeTab.id === 'accountTabAdmin') {
+      const profileBtn = document.getElementById('navTabProfile');
+      switchAccountTab('profile', profileBtn);
+    }
+  }
+}
+
+function updateRazorpayStatusBadge() {
+  const keyInput = document.getElementById('rzpKeyInput');
+  const badge = document.getElementById('rzpKeyStatusBadge');
+  if (!keyInput || !badge) return;
+
+  const val = keyInput.value.trim();
+  if (!val) {
+    badge.className = 'badge-status-mode test-mode';
+    badge.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Key Required';
+  } else if (val.startsWith('rzp_live_')) {
+    badge.className = 'badge-status-mode active-mode';
+    badge.innerHTML = '<i class="fas fa-circle-check"></i> Active (Live Mode)';
+  } else {
+    badge.className = 'badge-status-mode test-mode';
+    badge.innerHTML = '<i class="fas fa-circle-check"></i> Active (Test Mode)';
+  }
+}
+
+function copyRazorpayKey() {
+  const keyInput = document.getElementById('rzpKeyInput');
+  if (!keyInput || !keyInput.value) {
+    showToast('⚠️ No API Key to copy.');
+    return;
+  }
+  navigator.clipboard.writeText(keyInput.value).then(() => {
+    showToast('📋 Razorpay API Key copied to clipboard!');
+  }).catch(() => {
+    keyInput.select();
+    document.execCommand('copy');
+    showToast('📋 Razorpay API Key copied!');
+  });
+}
+
+function confirmClearOrders() {
+  if (confirm('⚠️ Are you sure you want to clear all store order logs? This action cannot be undone.')) {
+    clearAllOrders();
+    showToast('🗑️ Order history cleared.');
+  }
+}
+
 function renderAdminTabDashboard() {
   const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
   
@@ -1104,22 +1172,40 @@ function renderAdminTabDashboard() {
   if (countEl) countEl.textContent = orders.length;
   if (rzpEl) rzpEl.textContent = razorpayPaidCount;
 
+  updateRazorpayStatusBadge();
+
   const tabList = document.getElementById('adminTabOrdersList');
   if (tabList) {
     if (orders.length === 0) {
-      tabList.innerHTML = `<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px;">No customer orders log available.</p>`;
+      tabList.innerHTML = `
+        <div class="empty-orders-state">
+          <div class="empty-icon-circle"><i class="fas fa-box-open"></i></div>
+          <h4>No Store Orders Logged Yet</h4>
+          <p>When customers place orders using Razorpay or Cash on Delivery, they will automatically appear here with real-time analytics.</p>
+        </div>
+      `;
     } else {
       tabList.innerHTML = orders.map(ord => `
-        <div style="background:var(--bg-card);border:1px solid var(--border-color);padding:10px 12px;border-radius:6px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);padding:12px 14px;border-radius:10px;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;">
           <div>
             <strong style="color:var(--accent-brown)">#${ord.paymentId}</strong> — ${ord.name} (${ord.phone})
-            <small style="display:block;color:var(--text-secondary)">${ord.itemsList}</small>
+            <small style="display:block;color:var(--text-secondary);margin-top:2px;">🛒 ${ord.itemsList}</small>
           </div>
-          <strong style="color:#27ae60">₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
+          <div style="text-align:right;">
+            <strong style="color:#27ae60;font-size:13.5px;display:block;">₹${(ord.finalAmount || 0).toLocaleString('en-IN')}</strong>
+            <span style="font-size:10.5px;background:${ord.payMethod === 'razorpay' ? '#0c2340' : '#27ae60'};color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;">
+              ${ord.payMethod === 'razorpay' ? 'Razorpay' : 'COD'}
+            </span>
+          </div>
         </div>
       `).join('');
     }
   }
 }
 
-console.log('🌿 Sadhna Ayurveda website with Razorpay integration & Account Dashboard loaded successfully!');
+// Initialize Dashboard state on load
+document.addEventListener('DOMContentLoaded', () => {
+  applyDashboardRoleState();
+});
+
+console.log('🌿 Sadhna Ayurveda website with Role-Based Dashboard & Analytics loaded successfully!');
