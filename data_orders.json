@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ORD-1001",
+    "paymentId": "pay_P892104921",
+    "name": "Vikrant Sharma",
+    "phone": "9876543210",
+    "email": "vikrant@sadhnaayurveda.com",
+    "address": "Madhuwala, Dehradun, Uttarakhand - 248007",
+    "itemsList": "Sadhna Madhu Shant (Diabetes Care) x 1",
+    "finalAmount": 3500,
+    "payMethod": "razorpay",
+    "status": "Pending Approval",
+    "stockAvailable": true,
+    "awbNumber": "SR849201948",
+    "timestamp": "26/7/2026, 2:33:37 pm"
+  },
+  {
+    "id": "ORD-1002",
+    "paymentId": "COD-7729103",
+    "name": "Anjali Verma",
+    "phone": "9718179397",
+    "email": "anjali@gmail.com",
+    "address": "Sector 62, Noida, Uttar Pradesh - 201301",
+    "itemsList": "Sadhna Liver Detox Juice x 2",
+    "finalAmount": 7000,
+    "payMethod": "cod",
+    "status": "Approved",
+    "stockAvailable": true,
+    "awbNumber": "SR992018234",
+    "timestamp": "26/7/2026, 2:33:37 pm"
+  }
+]
