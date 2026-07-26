@@ -1,0 +1,14 @@
+{
+  "name": "sadhna-ayurveda-backend",
+  "version": "4.0.0",
+  "description": "Node.js Express REST API Backend & Admin Dashboard for Sadhna Ayurveda",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

@@ -829,11 +829,27 @@ function closeCheckoutModal() {
 function showOrderSuccessModal(orderData) {
   closeCheckoutModal();
 
-  // Save Order to LocalStorage Order History
+  // Save Order to LocalStorage Order History & Send to Node.js Backend API
   orderData.timestamp = new Date().toLocaleString('en-IN');
+  orderData.status = 'Pending Approval';
   const existingOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
   existingOrders.unshift(orderData);
   localStorage.setItem('sadhna-orders', JSON.stringify(existingOrders));
+
+  // Send Order to Node.js Backend REST API
+  try {
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    }).then(res => res.json()).then(data => {
+      if (data && data.success) {
+        console.log('🟢 Order submitted to Node.js Backend & Admin Approval Queue:', data.order);
+      }
+    }).catch(err => console.warn('Node.js Backend notice:', err));
+  } catch (err) {
+    console.warn('Node.js fetch error:', err);
+  }
 
   // Construct WhatsApp Order Message Link for Admin (+91 9718179397)
   const waMsgText = encodeURIComponent(
