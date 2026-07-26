@@ -3176,6 +3176,14 @@ button {
   padding: 0 24px;
   background: var(--bg-body);
   overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+}
+
+.account-nav-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .account-tab-btn {
@@ -3192,7 +3200,8 @@ button {
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  scroll-snap-align: start;
 }
 
 .account-tab-btn:hover {
@@ -3206,10 +3215,15 @@ button {
 
 .account-tab-content {
   display: none;
+  opacity: 0;
+  transform: translateX(12px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 }
 
 .account-tab-content.active {
   display: block;
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .user-profile-header {

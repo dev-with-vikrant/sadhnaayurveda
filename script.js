@@ -1101,11 +1101,59 @@ function handleRazorpayPayment(event) {
   }
 }
 
+// Touch Swipe Gestures for Mobile Account Modal Tabs
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+function setupAccountModalSwipeGestures() {
+  const modalBody = document.querySelector('#accountModal .modal-body');
+  if (!modalBody || modalBody.dataset.swipeInitialized) return;
+
+  modalBody.dataset.swipeInitialized = 'true';
+
+  modalBody.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  modalBody.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    handleTabSwipeGesture();
+  }, { passive: true });
+}
+
+function handleTabSwipeGesture() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  // Ensure horizontal swipe is dominant and longer than 50px threshold
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+    const visibleTabBtns = Array.from(document.querySelectorAll('.account-tab-btn')).filter(btn => btn.style.display !== 'none');
+    const activeBtnIndex = visibleTabBtns.findIndex(btn => btn.classList.contains('active'));
+
+    if (activeBtnIndex !== -1) {
+      if (deltaX < 0 && activeBtnIndex < visibleTabBtns.length - 1) {
+        // Swipe Left -> Next Tab
+        const nextBtn = visibleTabBtns[activeBtnIndex + 1];
+        nextBtn.click();
+      } else if (deltaX > 0 && activeBtnIndex > 0) {
+        // Swipe Right -> Previous Tab
+        const prevBtn = visibleTabBtns[activeBtnIndex - 1];
+        prevBtn.click();
+      }
+    }
+  }
+}
+
 // =================== ACCOUNT & DASHBOARD MANAGEMENT ===================
 function openAccountModal() {
   loadUserProfile();
   renderUserOrders();
   renderAdminTabDashboard();
+  setupAccountModalSwipeGestures();
 
   const rzpKeyInput = document.getElementById('rzpKeyInput');
   if (rzpKeyInput) rzpKeyInput.value = RAZORPAY_KEY_ID;
@@ -1129,7 +1177,10 @@ function switchAccountTab(tabId, btn) {
   document.querySelectorAll('.account-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.account-tab-content').forEach(c => c.classList.remove('active'));
 
-  if (btn) btn.classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
   
   const targetId = tabId === 'profile' ? 'accountTabProfile' :
                    tabId === 'orders' ? 'accountTabOrders' :
