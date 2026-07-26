@@ -1210,6 +1210,7 @@ function triggerAvatarUpload() {
   const fileInput = document.getElementById('userAvatarFileInput');
   if (fileInput) fileInput.click();
 }
+window.triggerAvatarUpload = triggerAvatarUpload;
 
 function handleAvatarUpload(e) {
   const file = e.target.files && e.target.files[0];
@@ -1232,6 +1233,7 @@ function handleAvatarUpload(e) {
   };
   reader.readAsDataURL(file);
 }
+window.handleAvatarUpload = handleAvatarUpload;
 
 function loadUserProfile() {
   const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
