@@ -1297,6 +1297,66 @@ function toggleFaq(button) {
 }
 window.toggleFaq = toggleFaq;
 
+function openQuickViewModal(name, price, img, desc) {
+  const modal = document.getElementById('quickViewModal');
+  const overlay = document.getElementById('quickViewOverlay');
+
+  const imgElem = document.getElementById('quickViewImg');
+  const titleElem = document.getElementById('quickViewTitle');
+  const priceElem = document.getElementById('quickViewPrice');
+  const descElem = document.getElementById('quickViewDesc');
+
+  if (imgElem) imgElem.src = img;
+  if (titleElem) titleElem.textContent = name;
+  if (priceElem) priceElem.textContent = `₹${price.toLocaleString('en-IN')}`;
+  if (descElem) descElem.textContent = desc || '100% Organic Ayurvedic formulation lab-tested for purity and potency.';
+
+  const cartBtn = document.getElementById('quickViewAddToCartBtn');
+  if (cartBtn) {
+    cartBtn.onclick = () => {
+      addToCart(name, price);
+      closeQuickViewModal();
+    };
+  }
+
+  const buyBtn = document.getElementById('quickViewBuyNowBtn');
+  if (buyBtn) {
+    buyBtn.onclick = () => {
+      buyNow(name, price);
+      closeQuickViewModal();
+    };
+  }
+
+  if (modal && overlay) {
+    overlay.classList.add('active');
+    modal.classList.add('active');
+  }
+}
+window.openQuickViewModal = openQuickViewModal;
+
+function closeQuickViewModal() {
+  const modal = document.getElementById('quickViewModal');
+  const overlay = document.getElementById('quickViewOverlay');
+  if (modal && overlay) {
+    overlay.classList.remove('active');
+    modal.classList.remove('active');
+  }
+}
+window.closeQuickViewModal = closeQuickViewModal;
+
+function toggleWishlist(btn, productName) {
+  btn.classList.toggle('active');
+  const icon = btn.querySelector('i');
+  if (btn.classList.contains('active')) {
+    if (icon) icon.className = 'fas fa-heart';
+    showToast(`❤️ ${productName} added to your Wishlist!`);
+  } else {
+    if (icon) icon.className = 'far fa-heart';
+    showToast(`🤍 ${productName} removed from Wishlist.`);
+  }
+}
+window.toggleWishlist = toggleWishlist;
+
 function triggerAvatarUpload() {
   const fileInput = document.getElementById('userAvatarFileInput');
   if (fileInput) fileInput.click();

@@ -1374,50 +1374,194 @@ button {
 /* =============================================
    PRODUCTS GRID
    ============================================= */
+/* =============================================
+   PRODUCTS GRID & RESPONSIVE CARDS
+   ============================================= */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
+@media (max-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .product-card {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: var(--bg-card, #ffffff);
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-color);
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .product-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 12px 30px rgba(92, 58, 33, 0.15);
   border-color: var(--accent-brown);
 }
 
 .product-img-wrapper {
   position: relative;
-  aspect-ratio: 4/3;
+  width: 100%;
+  height: 220px;
   overflow: hidden;
-  background: var(--bg-tertiary);
+  background: #fdfbf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .product-img-wrapper img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+  object-fit: contain;
+  padding: 12px;
+  transition: transform 0.4s ease;
 }
 
 .product-card:hover .product-img-wrapper img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
-.product-badges {
+.product-actions-overlay {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 12px;
+  right: 12px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 15;
+  opacity: 0.9;
+}
+
+.product-card:hover .product-actions-overlay {
+  opacity: 1;
+}
+
+.prod-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(92, 58, 33, 0.2);
+  color: var(--accent-brown);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.prod-action-btn:hover {
+  background: var(--accent-brown);
+  color: #ffffff;
+  border-color: var(--accent-brown);
+  transform: scale(1.1);
+}
+
+.prod-action-btn.wishlist-btn.active {
+  background: #e74c3c;
+  color: #ffffff;
+  border-color: #e74c3c;
+}
+
+.product-info {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.product-category {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-brown);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.product-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.product-rating {
+  font-size: 12px;
+  color: var(--accent-gold);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.product-rating span {
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  margin-left: 4px;
+}
+
+.product-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.price-original {
+  font-size: 13px;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.price-sale {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent-brown);
+}
+
+.product-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.product-btn-group .btn {
+  flex: 1;
+  padding: 9px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
   flex-direction: column;
   gap: 5px;
   z-index: 2;
