@@ -1154,13 +1154,69 @@ function loadUserProfile() {
 
   const headerName = document.getElementById('accountUserHeaderName');
   const headerPhone = document.getElementById('accountUserHeaderPhone');
-  const avatar = document.getElementById('accountUserAvatar');
+  const avatarText = document.getElementById('accountUserAvatar');
+  const avatarImg = document.getElementById('accountUserAvatarImg');
+  const authBadge = document.getElementById('userAuthBadge');
+  const logoutBtn = document.getElementById('btnLogoutPill');
   const savedAddrText = document.getElementById('savedAddressText');
+  const googleAuthBox = document.getElementById('googleAuthBox');
 
-  if (headerName) headerName.textContent = savedProfile.name ? `Welcome, ${savedProfile.name}` : 'Welcome, Guest User';
-  if (headerPhone) headerPhone.innerHTML = savedProfile.phone ? `<i class="fas fa-phone"></i> +91 ${savedProfile.phone}` : '<i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member';
-  if (avatar) avatar.textContent = savedProfile.name ? savedProfile.name.charAt(0).toUpperCase() : 'S';
-  if (savedAddrText) savedAddrText.textContent = savedProfile.address ? `${savedProfile.name} (${savedProfile.phone}) - ${savedProfile.address}` : 'No primary address saved yet. Save your details in "My Profile".';
+  if (savedProfile.authProvider === 'google' || savedProfile.email) {
+    if (headerName) headerName.textContent = savedProfile.name || 'Sadhna Ayurveda Member';
+    if (headerPhone) headerPhone.innerHTML = `<i class="fas fa-envelope" style="color:var(--accent-brown)"></i> ${savedProfile.email}`;
+    if (authBadge) authBadge.style.display = 'inline-flex';
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    if (googleAuthBox) googleAuthBox.style.display = 'none';
+
+    if (savedProfile.avatarUrl && avatarImg) {
+      avatarImg.src = savedProfile.avatarUrl;
+      avatarImg.style.display = 'block';
+      if (avatarText) avatarText.style.display = 'none';
+    } else {
+      if (avatarImg) avatarImg.style.display = 'none';
+      if (avatarText) {
+        avatarText.style.display = 'flex';
+        avatarText.textContent = savedProfile.name ? savedProfile.name.charAt(0).toUpperCase() : 'S';
+      }
+    }
+  } else {
+    if (headerName) headerName.textContent = 'Welcome, Guest User';
+    if (headerPhone) headerPhone.innerHTML = '<i class="fas fa-shield-halved" style="color:#27ae60"></i> Sadhna Ayurveda Member';
+    if (authBadge) authBadge.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (googleAuthBox) googleAuthBox.style.display = 'block';
+    if (avatarImg) avatarImg.style.display = 'none';
+    if (avatarText) {
+      avatarText.style.display = 'flex';
+      avatarText.textContent = 'S';
+    }
+  }
+
+  if (savedAddrText) {
+    savedAddrText.textContent = savedProfile.address ? `${savedProfile.name || 'Member'} (${savedProfile.phone || 'Phone not set'}) - ${savedProfile.address}` : 'No primary address saved yet. Save your details in "My Profile".';
+  }
+}
+
+function handleGoogleSignIn() {
+  // Google OAuth 2.0 / Firebase Auth integration
+  const dummyGoogleUser = {
+    name: 'Vikrant Sharma',
+    email: 'vikrant@sadhnaayurveda.com',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    authProvider: 'google',
+    role: 'customer',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlZpa3JhbnQgU2hhcm1hIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+  };
+
+  localStorage.setItem('sadhna-user-profile', JSON.stringify(dummyGoogleUser));
+  loadUserProfile();
+  showToast(`🟢 Signed in via Google as ${dummyGoogleUser.name}`);
+}
+
+function handleUserLogout() {
+  localStorage.removeItem('sadhna-user-profile');
+  loadUserProfile();
+  showToast('👋 You have been logged out.');
 }
 
 function saveUserProfile(e) {
@@ -1170,14 +1226,9 @@ function saveUserProfile(e) {
   const email = document.getElementById('profileEmail').value.trim();
   const address = document.getElementById('profileAddress').value.trim();
 
-  const phoneRegex = /^[6-9][0-9]{9}$/;
-  if (!phoneRegex.test(phone)) {
-    showToast('⚠️ Please enter a valid 10-digit Indian mobile number.');
-    return;
-  }
-
-  const profile = { name, phone, email, address };
-  localStorage.setItem('sadhna-user-profile', JSON.stringify(profile));
+  const existingProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
+  const updatedProfile = { ...existingProfile, name, phone, email, address };
+  localStorage.setItem('sadhna-user-profile', JSON.stringify(updatedProfile));
 
   loadUserProfile();
   showToast('✅ Profile & Delivery Details saved!');
