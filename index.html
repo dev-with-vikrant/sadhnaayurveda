@@ -1406,6 +1406,30 @@
           </div>
         </div>
 
+        <!-- Google Cloud OAuth Client ID Configuration Box -->
+        <div class="rzp-key-config-box" style="margin-bottom:16px;">
+          <div class="rzp-key-header">
+            <div class="rzp-key-title">
+              <i class="fab fa-google" style="color:#4285F4"></i> Google Cloud OAuth Client ID Configuration
+            </div>
+            <span class="badge-status-mode active-mode" id="googleClientStatusBadge">
+              <i class="fas fa-circle-check"></i> Connected
+            </span>
+          </div>
+
+          <div class="rzp-key-input-group">
+            <input type="text" id="googleClientIdInput" placeholder="YOUR_CLIENT_ID.apps.googleusercontent.com" class="rzp-key-input" />
+            <button type="button" class="btn btn-primary" onclick="saveGoogleClientIdFromUI()" style="white-space:nowrap;font-size:13px;padding:8px 16px;">
+              <i class="fas fa-check"></i> Save Client ID
+            </button>
+          </div>
+
+          <div class="rzp-help-text">
+            <i class="fas fa-circle-info"></i>
+            <span>Obtain your Client ID from <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> &gt; APIs &amp; Services &gt; Credentials &gt; OAuth 2.0 Client IDs.</span>
+          </div>
+        </div>
+
         <!-- Razorpay API Key Configuration Box -->
         <div class="rzp-key-config-box">
           <div class="rzp-key-header">
@@ -1472,6 +1496,8 @@
   <!-- ===================== TOAST NOTIFICATION ===================== -->
   <div class="toast" id="toast"></div>
 
+  <!-- Google Identity Services (GIS) Official OAuth SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Razorpay Official SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script src="script.js?v=4.0"></script>

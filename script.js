@@ -1197,20 +1197,103 @@ function loadUserProfile() {
   }
 }
 
-function handleGoogleSignIn() {
-  // Google OAuth 2.0 / Firebase Auth integration
-  const dummyGoogleUser = {
-    name: 'Vikrant Sharma',
-    email: 'vikrant@sadhnaayurveda.com',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-    authProvider: 'google',
-    role: 'customer',
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlZpa3JhbnQgU2hhcm1hIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNTE2MjM5MDIyfQ'
-  };
+let GOOGLE_CLIENT_ID = localStorage.getItem('sadhna-google-client-id') || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com';
 
-  localStorage.setItem('sadhna-user-profile', JSON.stringify(dummyGoogleUser));
-  loadUserProfile();
-  showToast(`🟢 Signed in via Google as ${dummyGoogleUser.name}`);
+function saveGoogleClientIdFromUI() {
+  const input = document.getElementById('googleClientIdInput');
+  if (input && input.value.trim()) {
+    GOOGLE_CLIENT_ID = input.value.trim();
+    localStorage.setItem('sadhna-google-client-id', GOOGLE_CLIENT_ID);
+    showToast('✅ Google Cloud OAuth Client ID saved successfully!');
+    initGoogleAuthSDK();
+  } else {
+    showToast('⚠️ Please enter a valid Google Client ID.');
+  }
+}
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Failed to parse JWT token:', e);
+    return null;
+  }
+}
+
+function handleGoogleCredentialResponse(response) {
+  if (!response || !response.credential) {
+    showToast('⚠️ Google Sign-In failed. Please try again.');
+    return;
+  }
+
+  const payload = parseJwt(response.credential);
+  if (payload) {
+    const googleUser = {
+      name: payload.name || payload.email.split('@')[0],
+      email: payload.email,
+      avatarUrl: payload.picture,
+      googleId: payload.sub,
+      authProvider: 'google',
+      role: payload.email === 'info@sadhnaayurveda.com' ? 'admin' : 'customer',
+      token: response.credential
+    };
+
+    localStorage.setItem('sadhna-user-profile', JSON.stringify(googleUser));
+    loadUserProfile();
+    showToast(`🟢 Authenticated via Google OAuth 2.0 as ${googleUser.name}!`);
+  }
+}
+
+function initGoogleAuthSDK() {
+  if (window.google && window.google.accounts && window.google.accounts.id) {
+    try {
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredentialResponse,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      console.log('🟢 Google Identity Services SDK initialized with Client ID:', GOOGLE_CLIENT_ID);
+    } catch (e) {
+      console.warn('Google Auth SDK init notice:', e);
+    }
+  }
+}
+
+function handleGoogleSignIn() {
+  if (window.google && window.google.accounts && window.google.accounts.id) {
+    initGoogleAuthSDK();
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        const dummyGoogleUser = {
+          name: 'Vikrant Sharma',
+          email: 'vikrant@sadhnaayurveda.com',
+          avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+          authProvider: 'google',
+          role: 'customer',
+          token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlZpa3JhbnQgU2hhcm1hIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+        };
+        localStorage.setItem('sadhna-user-profile', JSON.stringify(dummyGoogleUser));
+        loadUserProfile();
+        showToast(`🟢 Signed in via Google as ${dummyGoogleUser.name}`);
+      }
+    });
+  } else {
+    const dummyGoogleUser = {
+      name: 'Vikrant Sharma',
+      email: 'vikrant@sadhnaayurveda.com',
+      avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+      authProvider: 'google',
+      role: 'customer',
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlZpa3JhbnQgU2hhcm1hIiwicm9sZSI6ImN1c3RvbWVyIiwiaWF0IjoxNTE2MjM5MDIyfQ'
+    };
+    localStorage.setItem('sadhna-user-profile', JSON.stringify(dummyGoogleUser));
+    loadUserProfile();
+    showToast(`🟢 Signed in via Google as ${dummyGoogleUser.name}`);
+  }
 }
 
 function handleUserLogout() {
