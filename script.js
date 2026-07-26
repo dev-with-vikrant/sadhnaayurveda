@@ -1365,6 +1365,78 @@ function handleGoogleSignIn() {
   }
 }
 
+// Shopify-style Customer Account Email OTP Authentication
+let shopifyGeneratedOtp = '';
+let shopifyTargetUserEmail = '';
+
+function sendShopifyEmailOtp(e) {
+  e.preventDefault();
+  const emailInput = document.getElementById('shopifyEmailInput');
+  if (!emailInput || !emailInput.value.trim()) return;
+
+  shopifyTargetUserEmail = emailInput.value.trim();
+  shopifyGeneratedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  document.getElementById('shopifyTargetEmail').textContent = shopifyTargetUserEmail;
+  document.getElementById('shopifyStepEmail').style.display = 'none';
+  document.getElementById('shopifyStepOtp').style.display = 'block';
+
+  setTimeout(() => {
+    const o1 = document.getElementById('shopifyOtp1');
+    if (o1) o1.focus();
+  }, 100);
+
+  showToast(`📩 Verification code sent to ${shopifyTargetUserEmail}! (Code: ${shopifyGeneratedOtp})`);
+  console.log(`🔑 Shopify OTP Code for ${shopifyTargetUserEmail}: ${shopifyGeneratedOtp}`);
+}
+
+function verifyShopifyEmailOtp(e) {
+  e.preventDefault();
+  const o1 = document.getElementById('shopifyOtp1').value;
+  const o2 = document.getElementById('shopifyOtp2').value;
+  const o3 = document.getElementById('shopifyOtp3').value;
+  const o4 = document.getElementById('shopifyOtp4').value;
+  const o5 = document.getElementById('shopifyOtp5').value;
+  const o6 = document.getElementById('shopifyOtp6').value;
+  const enteredOtp = `${o1}${o2}${o3}${o4}${o5}${o6}`;
+
+  if (enteredOtp.length !== 6) {
+    showToast('⚠️ Please enter all 6 digits of your verification code.');
+    return;
+  }
+
+  const namePart = shopifyTargetUserEmail.split('@')[0];
+  const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+
+  const userProfile = {
+    name: formattedName,
+    email: shopifyTargetUserEmail,
+    phone: '',
+    address: '',
+    authProvider: 'email-otp',
+    avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(formattedName)}&background=5c3a21&color=fff`
+  };
+
+  localStorage.setItem('sadhna-user-profile', JSON.stringify(userProfile));
+  loadUserProfile();
+
+  document.getElementById('shopifyStepOtp').style.display = 'none';
+  document.getElementById('shopifyStepEmail').style.display = 'block';
+
+  showToast(`🟢 Authenticated as ${formattedName}!`);
+}
+
+function backToShopifyEmailStep() {
+  document.getElementById('shopifyStepOtp').style.display = 'none';
+  document.getElementById('shopifyStepEmail').style.display = 'block';
+}
+
+function moveShopifyOtp(current, nextId, prevId) {
+  if (current.value.length === 1 && nextId) {
+    document.getElementById(nextId).focus();
+  }
+}
+
 function handleUserLogout() {
   localStorage.removeItem('sadhna-user-profile');
   loadUserProfile();
