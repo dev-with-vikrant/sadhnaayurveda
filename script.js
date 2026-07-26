@@ -1277,7 +1277,25 @@ function subscribeNewsletter(e) {
   if (input) input.value = '';
   showToast(`📩 Subscribed successfully! ${email} will receive exclusive offer updates & 10% coupon.`);
 }
-window.subscribeNewsletter = subscribeNewsletter;
+function toggleFaq(button) {
+  const faqItem = button.closest('.faq-item');
+  if (!faqItem) return;
+
+  const isActive = faqItem.classList.contains('active');
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('active');
+    const icon = item.querySelector('.faq-question i');
+    if (icon) icon.className = 'fas fa-plus';
+  });
+
+  if (!isActive) {
+    faqItem.classList.add('active');
+    const icon = button.querySelector('i');
+    if (icon) icon.className = 'fas fa-minus';
+  }
+}
+window.toggleFaq = toggleFaq;
 
 function triggerAvatarUpload() {
   const fileInput = document.getElementById('userAvatarFileInput');
