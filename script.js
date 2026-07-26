@@ -1300,8 +1300,8 @@ function loadUserProfile() {
 }
 
 const LIVE_GOOGLE_CLIENT_ID = '439824053286-pvb6vo9dggccn2dhsqbk91a72ru77qs4.apps.googleusercontent.com';
-let GOOGLE_CLIENT_ID = localStorage.getItem('sadhna-google-client-id') || LIVE_GOOGLE_CLIENT_ID;
-localStorage.setItem('sadhna-google-client-id', GOOGLE_CLIENT_ID);
+let GOOGLE_CLIENT_ID = LIVE_GOOGLE_CLIENT_ID;
+localStorage.setItem('sadhna-google-client-id', LIVE_GOOGLE_CLIENT_ID);
 
 function saveGoogleClientIdFromUI() {
   const input = document.getElementById('googleClientIdInput');
