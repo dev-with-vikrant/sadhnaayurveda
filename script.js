@@ -1102,10 +1102,10 @@ function handleRazorpayPayment(event) {
 }
 
 // Touch Swipe Gestures for Mobile Account Modal Tabs
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
+let modalTouchStartX = 0;
+let modalTouchStartY = 0;
+let modalTouchEndX = 0;
+let modalTouchEndY = 0;
 
 function setupAccountModalSwipeGestures() {
   const modalBody = document.querySelector('#accountModal .modal-body');
@@ -1114,20 +1114,20 @@ function setupAccountModalSwipeGestures() {
   modalBody.dataset.swipeInitialized = 'true';
 
   modalBody.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
-    touchStartY = e.changedTouches[0].screenY;
+    modalTouchStartX = e.changedTouches[0].screenX;
+    modalTouchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
 
   modalBody.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    touchEndY = e.changedTouches[0].screenY;
+    modalTouchEndX = e.changedTouches[0].screenX;
+    modalTouchEndY = e.changedTouches[0].screenY;
     handleTabSwipeGesture();
   }, { passive: true });
 }
 
 function handleTabSwipeGesture() {
-  const deltaX = touchEndX - touchStartX;
-  const deltaY = touchEndY - touchStartY;
+  const deltaX = modalTouchEndX - modalTouchStartX;
+  const deltaY = modalTouchEndY - modalTouchStartY;
 
   // Ensure horizontal swipe is dominant and longer than 50px threshold
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
