@@ -282,16 +282,17 @@ button {
 .search-bar {
   display: flex;
   align-items: center;
-  border: 1.5px solid var(--border-color);
+  border: 1px solid var(--border-color, #E5DCC6);
   border-radius: 50px;
-  background: var(--search-bg);
-  overflow: hidden;
-  transition: var(--transition);
+  background: rgba(244, 239, 230, 0.6);
+  padding: 2px 6px;
+  transition: all 0.3s ease;
 }
 
 .search-bar:focus-within {
   border-color: var(--accent-brown);
-  box-shadow: 0 0 0 3px rgba(107, 58, 31, 0.12);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(107, 58, 31, 0.1);
 }
 
 .search-type {
@@ -364,13 +365,15 @@ button {
 .search-clear-btn:hover { color: var(--accent-red); }
 
 .search-mic, .search-btn {
-  padding: 10px 14px;
-  color: var(--text-muted);
-  font-size: 15px;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  color: var(--text-secondary);
+  font-size: 16px;
   transition: var(--transition-fast);
   cursor: pointer;
 }
-.search-mic:hover { color: var(--accent-brown); }
+.search-mic:hover, .search-btn:hover { color: var(--accent-brown); }
 
 .search-mic.recording-active {
   color: #e74c3c !important;
@@ -386,14 +389,9 @@ button {
 }
 
 .search-btn {
-  background: var(--accent-brown);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 0 50px 50px 0;
-  margin-right: -1px;
-  border: none;
+  color: var(--text-primary);
+  font-size: 16px;
 }
-.search-btn:hover { background: var(--accent-orange); }
 
 /* Live Search Suggestions Dropdown */
 .search-suggestions-dropdown {
