@@ -1,0 +1,21 @@
+# Apache Rewrite Rules for Sadhna Ayurveda
+
+RewriteEngine On
+
+# 1. Route /admin and /admin/ to admin.html
+RewriteRule ^admin/?$ admin.html [L,QSA]
+
+# 2. Allow HTML extension hiding (e.g. /terms -> /terms.html)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.*)$ $1.html [L,QSA]
+
+# 3. Enable CORS headers for REST API requests
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# 4. Enable Gzip Compression for Performance
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+</IfModule>
