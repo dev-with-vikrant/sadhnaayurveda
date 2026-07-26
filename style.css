@@ -4111,3 +4111,86 @@ button {
   transform: scale(1.15);
   background: #8b5a2b;
 }
+
+/* =============================================
+   FLASH SALE URGENCY BAR (ASHVA AYURVEDA ENHANCEMENT)
+   ============================================= */
+.flash-sale-bar {
+  background: linear-gradient(135deg, #1a0f05 0%, #3a1e0b 50%, #1a0f05 100%);
+  color: #ffffff;
+  padding: 14px 0;
+  border-top: 1px solid var(--accent-gold);
+  border-bottom: 1px solid var(--accent-gold);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  margin-top: -1px;
+}
+
+.flash-sale-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.flash-sale-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-family: var(--font-accent);
+}
+
+.flash-icon {
+  color: var(--accent-gold);
+  font-size: 18px;
+  animation: flashPulse 1s infinite alternate;
+}
+
+@keyframes flashPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 10px var(--accent-gold); }
+}
+
+.flash-sale-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-accent);
+  font-weight: 800;
+}
+
+.timer-box {
+  background: rgba(200, 148, 26, 0.2);
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.timer-colon {
+  color: var(--accent-gold);
+  font-size: 18px;
+}
+
+.btn-flash-buy {
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #e8b830 100%);
+  color: #1a0f05;
+  font-weight: 800;
+  padding: 10px 22px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 13px;
+  font-family: var(--font-accent);
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(200, 148, 26, 0.4);
+}
+
+.btn-flash-buy:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(200, 148, 26, 0.6);
+  color: #000000;
+}

@@ -2,6 +2,26 @@
    SADHNA AYURVEDA – JAVASCRIPT
    ============================================= */
 
+// =================== FLASH SALE COUNTDOWN TIMER ===================
+function startFlashSaleTimer() {
+  let seconds = 5 * 3600 + 28 * 60 + 45;
+  setInterval(() => {
+    seconds--;
+    if (seconds <= 0) seconds = 8 * 3600;
+    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
+
+    const elemH = document.getElementById('timerHours');
+    const elemM = document.getElementById('timerMins');
+    const elemS = document.getElementById('timerSecs');
+    if (elemH) elemH.textContent = h;
+    if (elemM) elemM.textContent = m;
+    if (elemS) elemS.textContent = s;
+  }, 1000);
+}
+startFlashSaleTimer();
+
 // =================== THEME TOGGLE ===================
 const themeToggle = document.getElementById('themeToggle');
 const html = document.documentElement;
