@@ -42,7 +42,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="style.css?v=4.5" />
+  <link rel="stylesheet" href="style.css?v=4.6" />
 
   <!-- Schema.org JSON-LD Structured Data Graph -->
   <script type="application/ld+json">
@@ -412,22 +412,24 @@
         </div>
       </div>
 
-      <!-- Header Actions -->
+      <!-- Header Actions (Ashva Ayurveda Style Top Right Corner) -->
       <div class="header-actions">
-        <button class="action-btn" id="giftBtn" title="Offers &amp; Gifts" aria-label="Gifts">
-          <i class="fas fa-gift"></i>
+        <button type="button" class="header-action-btn track-order-btn" onclick="openTrackOrderModal()" title="Track Your Courier Order">
+          <i class="fas fa-truck-fast"></i>
+          <span class="action-btn-text">Track Order</span>
         </button>
-        <button class="action-btn" id="accountBtn" title="My Account" aria-label="Account">
+        <button type="button" class="header-action-btn account-action-btn" id="accountBtn" title="My Account">
           <i class="fas fa-user"></i>
+          <span class="action-btn-text">Account</span>
         </button>
-        <button class="action-btn cart-btn" id="cartBtn" title="Shopping Cart" aria-label="Cart">
-          <i class="fas fa-shopping-bag"></i>
+        <button type="button" class="header-action-btn cart-action-btn" id="cartBtn" title="Shopping Cart">
+          <i class="fas fa-bag-shopping"></i>
+          <span class="action-btn-text">Cart</span>
           <span class="cart-count" id="cartCount">0</span>
         </button>
-        <div class="divider"></div>
-        <!-- Dark/Light Mode Toggle -->
-        <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode" aria-label="Toggle theme">
-          <i class="fas fa-circle-half-stroke"></i>
+        <div class="header-action-divider"></div>
+        <button type="button" class="header-action-btn theme-toggle-btn" id="themeToggle" title="Toggle dark/light theme" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
         </button>
       </div>
 
@@ -1670,6 +1672,6 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Razorpay Official SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="script.js?v=4.5"></script>
+  <script src="script.js?v=4.6"></script>
 </body>
 </html>
