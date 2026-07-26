@@ -1470,13 +1470,100 @@ function renderUserOrders() {
   }).join('');
 }
 
-// Role-based Dashboard Management
+// Role-based Dashboard Management with 4-Digit Security PIN Protection
 let currentDashboardRole = 'customer'; // Default role is 'customer'
+let ADMIN_SECURITY_PIN = localStorage.getItem('sadhna-admin-pin') || '1234';
+
+function openAdminPinModal() {
+  const overlay = document.getElementById('adminPinOverlay');
+  const modal = document.getElementById('adminPinModal');
+  const errorMsg = document.getElementById('pinErrorMessage');
+
+  if (errorMsg) errorMsg.style.display = 'none';
+
+  ['pinDigit1', 'pinDigit2', 'pinDigit3', 'pinDigit4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  if (overlay && modal) {
+    overlay.classList.add('active');
+    modal.classList.add('active');
+    setTimeout(() => {
+      const d1 = document.getElementById('pinDigit1');
+      if (d1) d1.focus();
+    }, 150);
+  }
+}
+
+function closeAdminPinModal() {
+  const overlay = document.getElementById('adminPinOverlay');
+  const modal = document.getElementById('adminPinModal');
+  if (overlay && modal) {
+    overlay.classList.remove('active');
+    modal.classList.remove('active');
+  }
+}
+
+function handlePinDigitInput(currentEl, nextId, prevId) {
+  if (currentEl.value.length === 1 && nextId) {
+    const nextEl = document.getElementById(nextId);
+    if (nextEl) nextEl.focus();
+  }
+}
+
+function togglePinMask(checkbox) {
+  const type = checkbox.checked ? 'text' : 'password';
+  ['pinDigit1', 'pinDigit2', 'pinDigit3', 'pinDigit4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.type = type;
+  });
+}
+
+function verifyAdminPin(e) {
+  e.preventDefault();
+  const d1 = document.getElementById('pinDigit1').value;
+  const d2 = document.getElementById('pinDigit2').value;
+  const d3 = document.getElementById('pinDigit3').value;
+  const d4 = document.getElementById('pinDigit4').value;
+  const enteredPin = `${d1}${d2}${d3}${d4}`;
+
+  const errorMsg = document.getElementById('pinErrorMessage');
+  const inputGroup = document.getElementById('pinInputGroup');
+
+  if (enteredPin === ADMIN_SECURITY_PIN) {
+    sessionStorage.setItem('sadhna-admin-unlocked', 'true');
+    closeAdminPinModal();
+    showToast('🟢 Security PIN Verified! Admin panel unlocked.');
+
+    currentDashboardRole = 'admin';
+    applyDashboardRoleState();
+    switchAccountTab('admin', document.getElementById('navTabAdmin'));
+  } else {
+    if (errorMsg) errorMsg.style.display = 'block';
+    if (inputGroup) {
+      inputGroup.style.animation = 'none';
+      inputGroup.offsetHeight;
+      inputGroup.style.animation = 'pinShake 0.4s ease-in-out';
+    }
+    showToast('❌ Incorrect Security PIN!');
+  }
+}
 
 function toggleDashboardRole() {
-  currentDashboardRole = currentDashboardRole === 'customer' ? 'admin' : 'customer';
-  applyDashboardRoleState();
-  showToast(`Switched to ${currentDashboardRole === 'admin' ? 'Store Admin' : 'Customer'} View`);
+  if (currentDashboardRole === 'customer') {
+    if (sessionStorage.getItem('sadhna-admin-unlocked') === 'true') {
+      currentDashboardRole = 'admin';
+      applyDashboardRoleState();
+      showToast('Switched to Store Admin View');
+    } else {
+      openAdminPinModal();
+    }
+  } else {
+    currentDashboardRole = 'customer';
+    applyDashboardRoleState();
+    showToast('Switched to Customer View');
+  }
 }
 
 function applyDashboardRoleState() {

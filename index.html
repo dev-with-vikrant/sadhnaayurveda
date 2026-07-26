@@ -1493,6 +1493,46 @@
     </div>
   </div>
 
+  <!-- ===================== ADMIN 4-DIGIT PIN SECURITY MODAL ===================== -->
+  <div class="modal-overlay" id="adminPinOverlay" onclick="closeAdminPinModal()"></div>
+  <div class="modal-dialog checkout-modal" id="adminPinModal" style="max-width:400px;text-align:center;">
+    <div class="modal-header" style="justify-content:center;position:relative;">
+      <h3 style="margin:0;"><i class="fas fa-lock" style="color:var(--accent-brown)"></i> Admin Security Verification</h3>
+      <button class="modal-close" onclick="closeAdminPinModal()" aria-label="Close modal" style="position:absolute;right:16px;"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" style="padding:24px 20px;">
+      <div class="pin-shield-icon">
+        <i class="fas fa-shield-halved"></i>
+      </div>
+      <h4 style="margin:14px 0 4px;font-size:16px;color:var(--text-primary);">Enter 4-Digit Security PIN</h4>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Default Security PIN: <strong style="color:var(--accent-brown);">1234</strong></p>
+
+      <form id="adminPinForm" onsubmit="verifyAdminPin(event)">
+        <div class="pin-input-group" id="pinInputGroup">
+          <input type="password" maxlength="1" class="pin-digit-box" id="pinDigit1" onkeyup="handlePinDigitInput(this, 'pinDigit2', null)" autocomplete="off" autofocus />
+          <input type="password" maxlength="1" class="pin-digit-box" id="pinDigit2" onkeyup="handlePinDigitInput(this, 'pinDigit3', 'pinDigit1')" autocomplete="off" />
+          <input type="password" maxlength="1" class="pin-digit-box" id="pinDigit3" onkeyup="handlePinDigitInput(this, 'pinDigit4', 'pinDigit2')" autocomplete="off" />
+          <input type="password" maxlength="1" class="pin-digit-box" id="pinDigit4" onkeyup="handlePinDigitInput(this, null, 'pinDigit3')" autocomplete="off" />
+        </div>
+
+        <div id="pinErrorMessage" class="pin-error-msg" style="display:none;">
+          <i class="fas fa-circle-exclamation"></i> Incorrect Security PIN. Access Denied.
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 20px;">
+          <label style="font-size:12.5px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <input type="checkbox" onchange="togglePinMask(this)" /> Show PIN Digits
+          </label>
+          <span style="font-size:11px;color:var(--text-muted);"><i class="fas fa-user-shield"></i> Protected Section</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;">
+          <i class="fas fa-key"></i> Unlock Admin Panel
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- ===================== TOAST NOTIFICATION ===================== -->
   <div class="toast" id="toast"></div>
 
