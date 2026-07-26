@@ -1462,6 +1462,37 @@ async function detectLiveLocation(targetTextareaId) {
   );
 }
 
+// Secret Admin Access (Keyboard Shortcut: Ctrl + Shift + A & Footer Triple-Click)
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+    e.preventDefault();
+    openAdminPortalSecret();
+  }
+});
+
+let secretClickCount = 0;
+let secretClickTimer = null;
+
+function handleSecretAdminClick() {
+  secretClickCount++;
+  clearTimeout(secretClickTimer);
+  secretClickTimer = setTimeout(() => {
+    secretClickCount = 0;
+  }, 1000);
+
+  if (secretClickCount >= 3) {
+    secretClickCount = 0;
+    openAdminPortalSecret();
+  }
+}
+
+function openAdminPortalSecret() {
+  showToast('🔐 Opening Sadhna Admin Portal...');
+  setTimeout(() => {
+    window.open('admin.html', '_blank');
+  }, 600);
+}
+
 function saveUserProfile(e) {
   e.preventDefault();
   const name = document.getElementById('profileName').value.trim();
