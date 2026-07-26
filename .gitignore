@@ -1,0 +1,4 @@
+# Environment Secret Variables
+.env
+node_modules/
+*.log
