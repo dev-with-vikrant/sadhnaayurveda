@@ -1264,7 +1264,9 @@ function loadUserProfile() {
   }
 }
 
-let GOOGLE_CLIENT_ID = localStorage.getItem('sadhna-google-client-id') || '1234567890-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com';
+const LIVE_GOOGLE_CLIENT_ID = '439824053286-pvb6vo9dggccn2dhsqbk91a72ru77qs4.apps.googleusercontent.com';
+let GOOGLE_CLIENT_ID = localStorage.getItem('sadhna-google-client-id') || LIVE_GOOGLE_CLIENT_ID;
+localStorage.setItem('sadhna-google-client-id', GOOGLE_CLIENT_ID);
 
 function saveGoogleClientIdFromUI() {
   const input = document.getElementById('googleClientIdInput');

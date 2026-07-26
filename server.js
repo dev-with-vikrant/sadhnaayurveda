@@ -6,8 +6,15 @@ const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '439824053286-pvb6vo9dggccn2dhsqbk91a72ru77qs4.apps.googleusercontent.com';
+
 app.use(cors());
 app.use(express.json());
+
+// Config Endpoint
+app.get('/api/config', (req, res) => {
+  res.json({ success: true, googleClientId: GOOGLE_CLIENT_ID });
+});
 
 // In-Memory Database File Path for persistent storage
 const DB_FILE = path.join(__dirname, 'data_orders.json');
