@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="style.css?v=4.0" />
+  <link rel="stylesheet" href="style.css?v=12.0" />
   <style>
     body {
       background-color: #f4efe6;
@@ -275,7 +275,7 @@
       const storedPasscode = localStorage.getItem('sadhna-admin-passcode-6');
       const errorMsg = document.getElementById('gatePinError');
 
-      if (enteredPasscode.length !== 6) {
+      if (enteredPasscode.length !== 6 || !/^\d{6}$/.test(enteredPasscode)) {
         if (errorMsg) {
           errorMsg.textContent = '⚠️ Please enter all 6 digits.';
           errorMsg.style.display = 'block';
@@ -347,8 +347,14 @@
           updateAdminStats();
         }
       } catch (err) {
-        console.warn('Backend API offline, loading local orders cache:', err);
-        allAdminOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+        console.warn('[admin] Backend offline, loading local cache:', err);
+        try {
+          allAdminOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+          if (!Array.isArray(allAdminOrders)) allAdminOrders = [];
+        } catch (parseErr) {
+          console.error('[admin] localStorage parse error:', parseErr);
+          allAdminOrders = [];
+        }
         renderAdminOrders();
         updateAdminStats();
       }
@@ -431,14 +437,14 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#fcfaf7;padding:14px;border-radius:12px;border:1px solid #e8dfcc;margin-bottom:16px;">
               <div>
                 <div style="font-size:11px;font-weight:700;color:#7f8c8d;text-transform:uppercase;margin-bottom:4px;">Customer Details</div>
-                <div style="font-size:14px;font-weight:700;color:#4a2e12;"><i class="fas fa-user"></i> ${ord.name}</div>
-                <div style="font-size:13px;color:#2d2a26;"><i class="fas fa-phone"></i> ${ord.phone}</div>
-                <div style="font-size:12.5px;color:#7f8c8d;"><i class="fas fa-envelope"></i> ${ord.email}</div>
-                <div style="font-size:12.5px;color:#4a2e12;margin-top:4px;"><i class="fas fa-location-dot"></i> ${ord.address}</div>
+                <div style="font-size:14px;font-weight:700;color:#4a2e12;"><i class="fas fa-user"></i> <span class="ord-name"></span></div>
+                <div style="font-size:13px;color:#2d2a26;"><i class="fas fa-phone"></i> <span class="ord-phone"></span></div>
+                <div style="font-size:12.5px;color:#7f8c8d;"><i class="fas fa-envelope"></i> <span class="ord-email"></span></div>
+                <div style="font-size:12.5px;color:#4a2e12;margin-top:4px;"><i class="fas fa-location-dot"></i> <span class="ord-address"></span></div>
               </div>
               <div>
                 <div style="font-size:11px;font-weight:700;color:#7f8c8d;text-transform:uppercase;margin-bottom:4px;">Items Ordered &amp; Stock Check</div>
-                <div style="font-size:13.5px;font-weight:600;color:#2d2a26;margin-bottom:6px;">🛒 ${ord.itemsList}</div>
+                <div style="font-size:13.5px;font-weight:600;color:#2d2a26;margin-bottom:6px;">🛒 <span class="ord-items"></span></div>
                 <div style="font-size:12px;color:${ord.stockAvailable !== false ? '#27ae60' : '#e74c3c'};font-weight:700;">
                   ${ord.stockAvailable !== false ? '✅ Stock Available in Warehouse' : '⚠️ OUT OF STOCK ALERT'}
                 </div>
@@ -477,6 +483,18 @@
           </div>
         `;
       }).join('');
+
+      // XSS Fix: assign user-data fields via textContent after innerHTML is set
+      filtered.forEach((ord, i) => {
+        const cards = container.querySelectorAll('.order-card-admin');
+        if (!cards[i]) return;
+        const set = (cls, val) => { const el = cards[i].querySelector(cls); if (el) el.textContent = String(val || ''); };
+        set('.ord-name', ord.name);
+        set('.ord-phone', ord.phone);
+        set('.ord-email', ord.email);
+        set('.ord-address', ord.address);
+        set('.ord-items', ord.itemsList);
+      });
     }
 
     async function approveOrder(orderId) {
