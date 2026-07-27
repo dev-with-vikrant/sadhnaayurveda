@@ -2,15 +2,32 @@
    SADHNA AYURVEDA – JAVASCRIPT
    ============================================= */
 
+// =================== UTILITY: XSS SANITIZER ===================
+function sanitize(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// =================== UTILITY: SAFE LOCALSTORAGE ===================
+function safeParseJSON(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+  } catch (e) {
+    console.warn(`[sadhna] Failed to parse localStorage key "${key}":`, e);
+    return fallback;
+  }
+}
+
 // =================== FLASH SALE COUNTDOWN TIMER ===================
 function startFlashSaleTimer() {
-  let seconds = 5 * 3600 + 28 * 60 + 45;
-  setInterval(() => {
-    seconds--;
-    if (seconds <= 0) seconds = 8 * 3600;
-    const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
-    const s = String(seconds % 60).padStart(2, '0');
+  // Use the promo timer end-time from localStorage so both timers stay in sync
+  function tick() {
+    const endTime = parseInt(localStorage.getItem('sadhna-promo-end') || '0');
+    const remaining = Math.max(0, endTime - Date.now());
+    const h = String(Math.floor(remaining / 3600000)).padStart(2, '0');
+    const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, '0');
+    const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
 
     const elemH = document.getElementById('timerHours');
     const elemM = document.getElementById('timerMins');
@@ -18,7 +35,9 @@ function startFlashSaleTimer() {
     if (elemH) elemH.textContent = h;
     if (elemM) elemM.textContent = m;
     if (elemS) elemS.textContent = s;
-  }, 1000);
+  }
+  tick();
+  setInterval(tick, 1000);
 }
 startFlashSaleTimer();
 
@@ -30,13 +49,15 @@ const html = document.documentElement;
 const savedTheme = localStorage.getItem('sadhna-theme') || 'light';
 html.setAttribute('data-theme', savedTheme);
 
-themeToggle.addEventListener('click', () => {
-  const current = html.getAttribute('data-theme');
-  const next = current === 'light' ? 'dark' : 'light';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('sadhna-theme', next);
-  showToast(next === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
-});
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('sadhna-theme', next);
+    showToast(next === 'dark' ? '🌙 Dark mode enabled' : '☀️ Light mode enabled');
+  });
+}
 
 // =================== ANNOUNCEMENT BAR ===================
 const annMessages = [
@@ -51,19 +72,28 @@ const annTrack = document.getElementById('annTrack');
 
 // Build doubled content for infinite scroll
 function buildAnnTrack() {
+  if (!annTrack) return;
   const msgs = [...annMessages, ...annMessages];
-  annTrack.innerHTML = msgs.map(m => `<span>${m}</span>`).join('');
+  annTrack.innerHTML = msgs.map(m => `<span>${sanitize(m)}</span>`).join('');
 }
 
 buildAnnTrack();
 
-document.getElementById('annPrev').addEventListener('click', () => {
-  annIndex = (annIndex - 1 + annMessages.length) % annMessages.length;
-});
+const annPrevBtn = document.getElementById('annPrev');
+const annNextBtn = document.getElementById('annNext');
 
-document.getElementById('annNext').addEventListener('click', () => {
-  annIndex = (annIndex + 1) % annMessages.length;
-});
+if (annPrevBtn) {
+  annPrevBtn.addEventListener('click', () => {
+    annIndex = (annIndex - 1 + annMessages.length) % annMessages.length;
+    if (annTrack) annTrack.style.transform = `translateX(-${annIndex * 100}%)`;
+  });
+}
+if (annNextBtn) {
+  annNextBtn.addEventListener('click', () => {
+    annIndex = (annIndex + 1) % annMessages.length;
+    if (annTrack) annTrack.style.transform = `translateX(-${annIndex * 100}%)`;
+  });
+}
 
 // =================== HEADER SCROLL ===================
 const mainHeader = document.getElementById('mainHeader');
@@ -111,17 +141,19 @@ let currentSlide = 0;
 let slideInterval;
 
 function goToSlide(index) {
+  if (!slides.length) return; // Guard: no slides present
   slides[currentSlide].classList.remove('active');
-  slideDots[currentSlide].classList.remove('active');
+  if (slideDots[currentSlide]) slideDots[currentSlide].classList.remove('active');
   currentSlide = (index + slides.length) % slides.length;
   slides[currentSlide].classList.add('active');
-  slideDots[currentSlide].classList.add('active');
+  if (slideDots[currentSlide]) slideDots[currentSlide].classList.add('active');
 }
 
 function nextSlide() { goToSlide(currentSlide + 1); }
 function prevSlide() { goToSlide(currentSlide - 1); }
 
 function startSlideShow() {
+  clearInterval(slideInterval); // Prevent duplicate intervals
   slideInterval = setInterval(nextSlide, 5000);
 }
 
@@ -130,8 +162,10 @@ function resetSlideShow() {
   startSlideShow();
 }
 
-document.getElementById('slideNext').addEventListener('click', () => { nextSlide(); resetSlideShow(); });
-document.getElementById('slidePrev').addEventListener('click', () => { prevSlide(); resetSlideShow(); });
+const slideNextBtn = document.getElementById('slideNext');
+const slidePrevBtn = document.getElementById('slidePrev');
+if (slideNextBtn) slideNextBtn.addEventListener('click', () => { nextSlide(); resetSlideShow(); });
+if (slidePrevBtn) slidePrevBtn.addEventListener('click', () => { prevSlide(); resetSlideShow(); });
 
 slideDots.forEach((dot, i) => {
   dot.addEventListener('click', () => { goToSlide(i); resetSlideShow(); });
@@ -157,11 +191,13 @@ heroSlider.addEventListener('touchend', (e) => {
 });
 
 // =================== CART FUNCTIONALITY ===================
-let cart = JSON.parse(localStorage.getItem('sadhna-cart') || '[]');
+let cart = safeParseJSON('sadhna-cart', []);
+// Ensure cart is always an array (guards against corrupt data)
+if (!Array.isArray(cart)) cart = [];
 
 function updateCartUI() {
-  const count = cart.reduce((sum, item) => sum + item.qty, 0);
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const count = cart.reduce((sum, item) => sum + (item.qty || 0), 0);
+  const total = cart.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0);
 
   const cartCountEl = document.getElementById('cartCount');
   if (cartCountEl) cartCountEl.textContent = count;
@@ -189,10 +225,11 @@ function updateCartUI() {
       cart.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'cart-item';
+        // XSS Fix: Use sanitize() for user-data fields
         div.innerHTML = `
           <div class="cart-item-info" style="flex:1">
-            <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')} × ${item.qty}</div>
+            <div class="cart-item-name">${sanitize(item.name)}</div>
+            <div class="cart-item-price">₹${(item.price || 0).toLocaleString('en-IN')} × ${item.qty}</div>
           </div>
           <button class="cart-item-remove" onclick="removeFromCart(${idx})" aria-label="Remove item">
             <i class="fas fa-xmark"></i>
@@ -207,21 +244,28 @@ function updateCartUI() {
 }
 
 function addToCart(name, price) {
+  if (!name || isNaN(price) || price < 0) {
+    console.warn('[sadhna] addToCart: invalid arguments', { name, price });
+    return;
+  }
   const existing = cart.find(i => i.name === name);
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({ name, price, qty: 1 });
+    cart.push({ name: String(name), price: Number(price), qty: 1 });
   }
   updateCartUI();
   showToast(`✓ ${name} added to cart!`);
   // Small wobble animation on cart icon
   const cartBtn = document.getElementById('cartBtn');
-  cartBtn.style.transform = 'scale(1.3)';
-  setTimeout(() => { cartBtn.style.transform = ''; }, 200);
+  if (cartBtn) {
+    cartBtn.style.transform = 'scale(1.3)';
+    setTimeout(() => { cartBtn.style.transform = ''; }, 200);
+  }
 }
 
 function removeFromCart(idx) {
+  if (idx < 0 || idx >= cart.length) return;
   cart.splice(idx, 1);
   updateCartUI();
 }
@@ -347,34 +391,49 @@ wishlistBtns.forEach(btn => {
     e.stopPropagation();
     btn.classList.toggle('active');
     const icon = btn.querySelector('i');
-    icon.className = btn.classList.contains('active') ? 'fas fa-heart' : 'fas fa-heart';
-    icon.style.color = btn.classList.contains('active') ? '#c0392b' : '';
-    showToast(btn.classList.contains('active') ? '❤️ Added to wishlist!' : 'Removed from wishlist');
+    const isActive = btn.classList.contains('active');
+    // Fix: toggle between filled and outline heart icon classes
+    if (icon) {
+      icon.className = isActive ? 'fas fa-heart' : 'far fa-heart';
+      icon.style.color = isActive ? '#c0392b' : '';
+    }
+    showToast(isActive ? '❤️ Added to wishlist!' : 'Removed from wishlist');
   });
 });
 
 // =================== NEWSLETTER ===================
-let newsletterSubmitted = false;
+// Single canonical implementation (duplicate definition below is removed)
 function subscribeNewsletter(e) {
   e.preventDefault();
-  if (newsletterSubmitted) {
+  const emailInput = e.target.querySelector('input[type="email"]');
+  const email = emailInput ? emailInput.value.trim() : '';
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    showToast('⚠️ Please enter a valid email address.');
+    return;
+  }
+
+  const subscribers = safeParseJSON('sadhna-subscribers', []);
+  if (subscribers.includes(email)) {
     showToast('✅ You are already subscribed!');
     return;
   }
-  const emailInput = e.target.querySelector('input[type="email"]');
-  if (emailInput && emailInput.value) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(emailInput.value)) {
-      showToast('⚠️ Please enter a valid email address.');
-      return;
-    }
-    const btn = e.target.querySelector('button[type="submit"]');
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-check"></i>'; }
-    showToast('🎉 Subscribed! Thank you for joining Sadhna Ayurveda.');
-    emailInput.value = '';
-    newsletterSubmitted = true;
-    setTimeout(() => { newsletterSubmitted = false; if (btn) { btn.disabled = false; btn.innerHTML = 'Subscribe <i class="fas fa-paper-plane"></i>'; } }, 30000);
+  subscribers.push(email);
+  localStorage.setItem('sadhna-subscribers', JSON.stringify(subscribers));
+
+  const btn = e.target.querySelector('button[type="submit"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-check"></i>';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = 'Subscribe <i class="fas fa-paper-plane"></i>';
+    }, 30000);
   }
+
+  if (emailInput) emailInput.value = '';
+  showToast(`🎉 Subscribed! Thank you for joining Sadhna Ayurveda.`);
 }
 
 // =================== PRODUCT CATEGORY FILTER ===================
@@ -804,19 +863,23 @@ function openCheckoutModal() {
   }
 
   // Auto-fill saved profile details if available
-  const savedProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
-  if (savedProfile.name && document.getElementById('custName')) document.getElementById('custName').value = savedProfile.name;
-  if (savedProfile.phone && document.getElementById('custPhone')) document.getElementById('custPhone').value = savedProfile.phone;
-  if (savedProfile.email && document.getElementById('custEmail')) document.getElementById('custEmail').value = savedProfile.email;
-  if (savedProfile.address && document.getElementById('custAddress')) document.getElementById('custAddress').value = savedProfile.address;
+  const savedProfile = safeParseJSON('sadhna-user-profile', {});
+  const custName = document.getElementById('custName');
+  const custPhone = document.getElementById('custPhone');
+  const custEmail = document.getElementById('custEmail');
+  const custAddress = document.getElementById('custAddress');
+  if (savedProfile.name && custName) custName.value = savedProfile.name;
+  if (savedProfile.phone && custPhone) custPhone.value = savedProfile.phone;
+  if (savedProfile.email && custEmail) custEmail.value = savedProfile.email;
+  if (savedProfile.address && custAddress) custAddress.value = savedProfile.address;
 
-  // Render Itemized Order Items
+  // Render Itemized Order Items (XSS Fix: sanitize item.name)
   const itemsContainer = document.getElementById('checkoutOrderItems');
   if (itemsContainer) {
     itemsContainer.innerHTML = cart.map(item => `
       <div class="checkout-item-row">
-        <span class="checkout-item-name">${item.name} <small style="color:var(--text-muted)">x${item.qty}</small></span>
-        <span class="checkout-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</span>
+        <span class="checkout-item-name">${sanitize(item.name)} <small style="color:var(--text-muted)">x${item.qty}</small></span>
+        <span class="checkout-item-price">₹${((item.price || 0) * (item.qty || 0)).toLocaleString('en-IN')}</span>
       </div>
     `).join('');
   }
@@ -852,8 +915,10 @@ function showOrderSuccessModal(orderData) {
   // Save Order to LocalStorage Order History & Send to Node.js Backend API
   orderData.timestamp = new Date().toLocaleString('en-IN');
   orderData.status = 'Pending Approval';
-  const existingOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  const existingOrders = safeParseJSON('sadhna-orders', []);
   existingOrders.unshift(orderData);
+  // Cap order history at 50 entries to prevent localStorage quota overflow
+  if (existingOrders.length > 50) existingOrders.length = 50;
   localStorage.setItem('sadhna-orders', JSON.stringify(existingOrders));
 
   // Send Order to Node.js Backend REST API
@@ -892,26 +957,27 @@ function showOrderSuccessModal(orderData) {
 
   const receiptContent = document.getElementById('receiptContent');
   if (receiptContent) {
+    // XSS Fix: sanitize all user-submitted orderData fields before injecting into innerHTML
     receiptContent.innerHTML = `
       <div class="receipt-row">
         <label>Transaction ID / Order ID:</label>
-        <strong><span class="txn-badge-success">${orderData.paymentId}</span></strong>
+        <strong><span class="txn-badge-success">${sanitize(orderData.paymentId)}</span></strong>
       </div>
       <div class="receipt-row">
         <label>Customer Name:</label>
-        <strong>${orderData.name}</strong>
+        <strong>${sanitize(orderData.name)}</strong>
       </div>
       <div class="receipt-row">
         <label>Phone / Email:</label>
-        <strong>${orderData.phone} | ${orderData.email}</strong>
+        <strong>${sanitize(orderData.phone)} | ${sanitize(orderData.email)}</strong>
       </div>
       <div class="receipt-row">
         <label>Delivery Address:</label>
-        <strong>${orderData.address}</strong>
+        <strong>${sanitize(orderData.address)}</strong>
       </div>
       <div class="receipt-row">
         <label>Items Purchased:</label>
-        <strong>${orderData.itemsList}</strong>
+        <strong>${sanitize(orderData.itemsList)}</strong>
       </div>
       <div class="receipt-row">
         <label>Payment Method:</label>
@@ -919,7 +985,7 @@ function showOrderSuccessModal(orderData) {
       </div>
       <div class="receipt-row" style="font-size:16px;font-weight:700;">
         <label>Total Amount Paid:</label>
-        <strong style="color:#27ae60">₹${orderData.finalAmount.toLocaleString('en-IN')}</strong>
+        <strong style="color:#27ae60">₹${(orderData.finalAmount || 0).toLocaleString('en-IN')}</strong>
       </div>
     `;
   }
@@ -1026,12 +1092,19 @@ document.querySelectorAll('input[name="payMethod"]').forEach(radio => {
 
 function handleRazorpayPayment(event) {
   event.preventDefault();
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
-  const email = document.getElementById('custEmail').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
-  const payMethod = document.querySelector('input[name="payMethod"]:checked').value;
-  
+  const custNameEl = document.getElementById('custName');
+  const custPhoneEl = document.getElementById('custPhone');
+  const custEmailEl = document.getElementById('custEmail');
+  const custAddressEl = document.getElementById('custAddress');
+  const payMethodEl = document.querySelector('input[name="payMethod"]:checked');
+
+  const name = custNameEl ? custNameEl.value.trim() : '';
+  const phone = custPhoneEl ? custPhoneEl.value.trim() : '';
+  const email = custEmailEl ? custEmailEl.value.trim() : '';
+  const address = custAddressEl ? custAddressEl.value.trim() : '';
+  // Null guard: default to 'cod' if no radio is selected
+  const payMethod = payMethodEl ? payMethodEl.value : 'cod';
+
   const { subtotal, discountAmount, finalTotal } = calculateCheckoutTotals();
 
   if (!name || !phone || !email || !address) {
@@ -1248,35 +1321,28 @@ window.closeReviewModal = closeReviewModal;
 
 function submitCustomerReview(e) {
   e.preventDefault();
-  const name = document.getElementById('reviewName').value;
-  const city = document.getElementById('reviewCity').value;
-  const product = document.getElementById('reviewProduct').value;
-  const text = document.getElementById('reviewText').value;
+  const nameEl = document.getElementById('reviewName');
+  const cityEl = document.getElementById('reviewCity');
+  const productEl = document.getElementById('reviewProduct');
+  const textEl = document.getElementById('reviewText');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const city = cityEl ? cityEl.value.trim() : '';
+  const product = productEl ? productEl.value.trim() : '';
+  const text = textEl ? textEl.value.trim() : '';
+
+  // Validation: require all fields
+  if (!name || !product || !text) {
+    showToast('⚠️ Please fill in your name, product, and review text.');
+    return;
+  }
 
   closeReviewModal();
   showToast(`⭐ Thank you ${name}! Your review for ${product} has been submitted successfully.`);
 }
 window.submitCustomerReview = submitCustomerReview;
 
-function subscribeNewsletter(e) {
-  e.preventDefault();
-  const input = e.target.querySelector('input[type="email"]');
-  const email = input ? input.value.trim() : '';
-
-  if (!email || !email.includes('@')) {
-    showToast('⚠️ Please enter a valid email address.');
-    return;
-  }
-
-  const subscribers = JSON.parse(localStorage.getItem('sadhna-subscribers') || '[]');
-  if (!subscribers.includes(email)) {
-    subscribers.push(email);
-    localStorage.setItem('sadhna-subscribers', JSON.stringify(subscribers));
-  }
-
-  if (input) input.value = '';
-  showToast(`📩 Subscribed successfully! ${email} will receive exclusive offer updates & 10% coupon.`);
-}
+// Note: subscribeNewsletter is defined once above (duplicate removed)
 function toggleFaq(button) {
   const faqItem = button.closest('.faq-item');
   if (!faqItem) return;
@@ -1485,21 +1551,25 @@ function handleGoogleCredentialResponse(response) {
   }
 
   const payload = parseJwt(response.credential);
-  if (payload) {
-    const googleUser = {
-      name: payload.name || payload.email.split('@')[0],
-      email: payload.email,
-      avatarUrl: payload.picture,
-      googleId: payload.sub,
-      authProvider: 'google',
-      role: payload.email === 'info@sadhnaayurveda.com' ? 'admin' : 'customer',
-      token: response.credential
-    };
-
-    localStorage.setItem('sadhna-user-profile', JSON.stringify(googleUser));
-    loadUserProfile();
-    showToast(`🟢 Authenticated via Google OAuth 2.0 as ${googleUser.name}!`);
+  // Guard: handle null payload from parseJwt
+  if (!payload || !payload.email) {
+    showToast('⚠️ Google Sign-In: could not read profile. Please try again.');
+    return;
   }
+
+  const googleUser = {
+    name: payload.name || payload.email.split('@')[0],
+    email: payload.email,
+    avatarUrl: payload.picture || '',
+    googleId: payload.sub || '',
+    authProvider: 'google',
+    role: payload.email === 'info@sadhnaayurveda.com' ? 'admin' : 'customer'
+    // Security: do NOT persist raw JWT/access tokens in localStorage
+  };
+
+  localStorage.setItem('sadhna-user-profile', JSON.stringify(googleUser));
+  loadUserProfile();
+  showToast(`🟢 Authenticated via Google OAuth 2.0 as ${googleUser.name}!`);
 }
 
 function initGoogleAuthSDK() {
@@ -1544,14 +1614,18 @@ function handleGoogleSignIn() {
             })
             .then(res => res.json())
             .then(userInfo => {
+              if (!userInfo || !userInfo.email) {
+                showToast('⚠️ Google Sign-In: could not retrieve profile.');
+                return;
+              }
               const googleUser = {
                 name: userInfo.name || userInfo.email.split('@')[0],
                 email: userInfo.email,
-                avatarUrl: userInfo.picture,
-                googleId: userInfo.sub,
+                avatarUrl: userInfo.picture || '',
+                googleId: userInfo.sub || '',
                 authProvider: 'google',
-                role: userInfo.email === 'info@sadhnaayurveda.com' ? 'admin' : 'customer',
-                token: tokenResponse.access_token
+                role: userInfo.email === 'info@sadhnaayurveda.com' ? 'admin' : 'customer'
+                // Security: do NOT persist OAuth access tokens in localStorage
               };
 
               localStorage.setItem('sadhna-user-profile', JSON.stringify(googleUser));
@@ -1583,39 +1657,56 @@ function sendShopifyEmailOtp(e) {
   const emailInput = document.getElementById('shopifyEmailInput');
   if (!emailInput || !emailInput.value.trim()) return;
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(emailInput.value.trim())) {
+    showToast('⚠️ Please enter a valid email address.');
+    return;
+  }
+
   shopifyTargetUserEmail = emailInput.value.trim();
   shopifyGeneratedOtp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  document.getElementById('shopifyTargetEmail').textContent = shopifyTargetUserEmail;
-  document.getElementById('shopifyStepEmail').style.display = 'none';
-  document.getElementById('shopifyStepOtp').style.display = 'block';
+  const targetEmailEl = document.getElementById('shopifyTargetEmail');
+  const stepEmailEl = document.getElementById('shopifyStepEmail');
+  const stepOtpEl = document.getElementById('shopifyStepOtp');
+
+  if (targetEmailEl) targetEmailEl.textContent = shopifyTargetUserEmail;
+  if (stepEmailEl) stepEmailEl.style.display = 'none';
+  if (stepOtpEl) stepOtpEl.style.display = 'block';
 
   setTimeout(() => {
     const o1 = document.getElementById('shopifyOtp1');
     if (o1) o1.focus();
   }, 100);
 
-  showToast(`📩 Verification code sent to ${shopifyTargetUserEmail}! (Code: ${shopifyGeneratedOtp})`);
-  console.log(`🔑 Shopify OTP Code for ${shopifyTargetUserEmail}: ${shopifyGeneratedOtp}`);
+  // Security: OTP is NOT shown in toast or console in production
+  // In a real system, send via backend email service (e.g. NodeMailer, SendGrid)
+  showToast(`📩 Verification code sent to ${shopifyTargetUserEmail}. Check your inbox.`);
 }
 
 function verifyShopifyEmailOtp(e) {
   e.preventDefault();
-  const o1 = document.getElementById('shopifyOtp1').value;
-  const o2 = document.getElementById('shopifyOtp2').value;
-  const o3 = document.getElementById('shopifyOtp3').value;
-  const o4 = document.getElementById('shopifyOtp4').value;
-  const o5 = document.getElementById('shopifyOtp5').value;
-  const o6 = document.getElementById('shopifyOtp6').value;
-  const enteredOtp = `${o1}${o2}${o3}${o4}${o5}${o6}`;
+  const fields = ['shopifyOtp1','shopifyOtp2','shopifyOtp3','shopifyOtp4','shopifyOtp5','shopifyOtp6'];
+  const enteredOtp = fields.map(id => {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }).join('');
 
   if (enteredOtp.length !== 6) {
     showToast('⚠️ Please enter all 6 digits of your verification code.');
     return;
   }
 
-  const namePart = shopifyTargetUserEmail.split('@')[0];
-  const formattedName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+  // Critical Fix: actually verify the entered OTP against generated OTP
+  if (enteredOtp !== shopifyGeneratedOtp) {
+    showToast('❌ Incorrect verification code. Please try again.');
+    return;
+  }
+
+  // Clean up display name: strip dots and numbers for a friendlier name
+  const rawPart = shopifyTargetUserEmail.split('@')[0];
+  const cleanPart = rawPart.replace(/[^a-zA-Z]/g, '') || rawPart;
+  const formattedName = cleanPart.charAt(0).toUpperCase() + cleanPart.slice(1).toLowerCase();
 
   const userProfile = {
     name: formattedName,
@@ -1629,8 +1720,13 @@ function verifyShopifyEmailOtp(e) {
   localStorage.setItem('sadhna-user-profile', JSON.stringify(userProfile));
   loadUserProfile();
 
-  document.getElementById('shopifyStepOtp').style.display = 'none';
-  document.getElementById('shopifyStepEmail').style.display = 'block';
+  // Reset OTP state
+  shopifyGeneratedOtp = '';
+
+  const stepOtpEl = document.getElementById('shopifyStepOtp');
+  const stepEmailEl = document.getElementById('shopifyStepEmail');
+  if (stepOtpEl) stepOtpEl.style.display = 'none';
+  if (stepEmailEl) stepEmailEl.style.display = 'block';
 
   showToast(`🟢 Authenticated as ${formattedName}!`);
 }
@@ -1747,7 +1843,8 @@ async function detectLiveLocation(targetTextareaId) {
 
 // Secret Admin Access (Keyboard Shortcut: Ctrl + Shift + A & Footer Triple-Click)
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+  // With Ctrl+Shift held, e.key is always uppercase — 'a' branch is dead code
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
     e.preventDefault();
     openAdminPortalSecret();
   }
@@ -1778,12 +1875,23 @@ function openAdminPortalSecret() {
 
 function saveUserProfile(e) {
   e.preventDefault();
-  const name = document.getElementById('profileName').value.trim();
-  const phone = document.getElementById('profilePhone').value.trim();
-  const email = document.getElementById('profileEmail').value.trim();
-  const address = document.getElementById('profileAddress').value.trim();
+  const nameEl = document.getElementById('profileName');
+  const phoneEl = document.getElementById('profilePhone');
+  const emailEl = document.getElementById('profileEmail');
+  const addressEl = document.getElementById('profileAddress');
 
-  const existingProfile = JSON.parse(localStorage.getItem('sadhna-user-profile') || '{}');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const email = emailEl ? emailEl.value.trim() : '';
+  const address = addressEl ? addressEl.value.trim() : '';
+
+  // Validate phone if provided
+  if (phone && !/^[6-9][0-9]{9}$/.test(phone)) {
+    showToast('⚠️ Please enter a valid 10-digit Indian mobile number.');
+    return;
+  }
+
+  const existingProfile = safeParseJSON('sadhna-user-profile', {});
   const updatedProfile = { ...existingProfile, name, phone, email, address };
   localStorage.setItem('sadhna-user-profile', JSON.stringify(updatedProfile));
 
@@ -1792,7 +1900,7 @@ function saveUserProfile(e) {
 }
 
 function renderUserOrders() {
-  const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  const orders = safeParseJSON('sadhna-orders', []);
   const listContainer = document.getElementById('userOrdersList');
 
   if (!listContainer) return;
@@ -2040,7 +2148,7 @@ function confirmClearOrders() {
 }
 
 function renderAdminTabDashboard() {
-  const orders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+  const orders = safeParseJSON('sadhna-orders', []);
   
   const totalRevenue = orders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
   const razorpayPaidCount = orders.filter(o => o.payMethod === 'razorpay').length;
@@ -2088,5 +2196,10 @@ function renderAdminTabDashboard() {
 document.addEventListener('DOMContentLoaded', () => {
   applyDashboardRoleState();
 });
+
+// =================== ADMIN PIN SECURITY NOTE ===================
+// IMPORTANT: The Admin PIN is currently stored in localStorage which is
+// readable by any browser extension or injected script. For production,
+// move PIN verification to a server-side endpoint.
 
 console.log('🌿 Sadhna Ayurveda website with Role-Based Dashboard & Analytics loaded successfully!');
