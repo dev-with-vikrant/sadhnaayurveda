@@ -729,6 +729,18 @@ if (searchInput) {
   });
 }
 
+// Show suggestions when search button is clicked with empty input, else run search
+function handleSearchBtnClick() {
+  const query = searchInput ? searchInput.value.trim() : '';
+  if (!query) {
+    if (searchInput) searchInput.focus();
+    showSearchSuggestions();
+  } else {
+    executeSearch();
+  }
+}
+window.handleSearchBtnClick = handleSearchBtnClick;
+
 // Close suggestions on outside click
 document.addEventListener('click', (e) => {
   const searchContainer = document.querySelector('.search-container');
@@ -1957,6 +1969,7 @@ function renderUserOrders() {
             <a href="https://wa.me/919718179397?text=${waMsgText}" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25d366;color:#fff;font-size:11.5px;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:600;">
               <i class="fab fa-whatsapp"></i> WhatsApp
             </a>
+            <button type="button" class="search-btn" onclick="handleSearchBtnClick()" aria-label="Search"><i class="fas fa-search"></i> Search</button>
             <button type="button" class="btn btn-outline-primary" onclick="window.print()" style="font-size:11.5px;padding:6px 10px;"><i class="fas fa-print"></i> Invoice</button>
           </div>
         </div>

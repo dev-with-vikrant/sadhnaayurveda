@@ -43,7 +43,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="style.css?v=22.0" />
+  <link rel="stylesheet" href="style.css?v=23.0" />
 
   <!-- Schema.org JSON-LD Structured Data Graph -->
   <script type="application/ld+json">
@@ -404,7 +404,7 @@
           <input type="text" id="searchInput" placeholder="Search Ayurvedic products..." aria-label="Search products" autocomplete="off" />
           <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Clear input" style="display:none;" onclick="clearSearchInput()"><i class="fas fa-xmark"></i></button>
           <button type="button" class="search-mic" id="searchMicBtn" onclick="startVoiceSearch()" aria-label="Voice search" title="Search by Voice (English &amp; Hindi)"><i class="fas fa-microphone"></i></button>
-          <button type="button" class="search-btn" onclick="executeSearch()" aria-label="Search"><i class="fas fa-search"></i></button>
+          <button type="button" class="search-btn" onclick="handleSearchBtnClick()" aria-label="Search"><i class="fas fa-search"></i> Search</button>
         </div>
 
         <!-- Live Auto-complete & Product Suggestions Dropdown -->
@@ -1822,6 +1822,6 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Razorpay Official SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="script.js?v=20.0"></script>
+  <script src="script.js?v=21.0"></script>
 </body>
 </html>
