@@ -236,7 +236,9 @@
   <script>
     let allAdminOrders = [];
     let currentFilter = 'all';
+    let autoRefreshTimer = null;
 
+    // ===== ADMIN GATE =====
     function checkAdminGate() {
       const storedPasscode = localStorage.getItem('sadhna-admin-passcode-6');
       const gateTitle = document.getElementById('gateTitle');
@@ -244,12 +246,10 @@
       const gateSubmitBtn = document.getElementById('gateSubmitBtn');
 
       if (!storedPasscode) {
-        // First-time Passcode Setup Mode
         if (gateTitle) gateTitle.textContent = 'Set 6-Digit Admin Passcode';
         if (gateSubtitle) gateSubtitle.textContent = 'Create your new secret 6-digit passcode for store admin portal access';
         if (gateSubmitBtn) gateSubmitBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Passcode &amp; Unlock';
       } else {
-        // Passcode Verification Mode
         if (gateTitle) gateTitle.textContent = 'Sadhna Admin Security';
         if (gateSubtitle) gateSubtitle.textContent = 'Enter your 6-digit admin security passcode';
         if (gateSubmitBtn) gateSubmitBtn.innerHTML = '<i class="fas fa-key"></i> Unlock Admin Portal';
@@ -258,50 +258,39 @@
           const gate = document.getElementById('adminPinGateOverlay');
           if (gate) gate.style.display = 'none';
           fetchAdminOrders();
+          startAutoRefresh();
         }
       }
     }
 
     function handleGatePasscodeSubmit(e) {
       e.preventDefault();
-      const p1 = document.getElementById('gatePin1').value;
-      const p2 = document.getElementById('gatePin2').value;
-      const p3 = document.getElementById('gatePin3').value;
-      const p4 = document.getElementById('gatePin4').value;
-      const p5 = document.getElementById('gatePin5').value;
-      const p6 = document.getElementById('gatePin6').value;
-      const enteredPasscode = `${p1}${p2}${p3}${p4}${p5}${p6}`;
-
+      const pins = ['gatePin1','gatePin2','gatePin3','gatePin4','gatePin5','gatePin6'];
+      const enteredPasscode = pins.map(id => document.getElementById(id).value).join('');
       const storedPasscode = localStorage.getItem('sadhna-admin-passcode-6');
       const errorMsg = document.getElementById('gatePinError');
 
       if (enteredPasscode.length !== 6 || !/^\d{6}$/.test(enteredPasscode)) {
-        if (errorMsg) {
-          errorMsg.textContent = '⚠️ Please enter all 6 digits.';
-          errorMsg.style.display = 'block';
-        }
+        if (errorMsg) { errorMsg.textContent = '⚠️ Please enter all 6 digits.'; errorMsg.style.display = 'block'; }
         return;
       }
 
       if (!storedPasscode) {
-        // First time setup - Save new 6-digit passcode
         localStorage.setItem('sadhna-admin-passcode-6', enteredPasscode);
         sessionStorage.setItem('sadhna-admin-unlocked', 'true');
         document.getElementById('adminPinGateOverlay').style.display = 'none';
         showToast('🟢 6-Digit Admin Passcode created & saved successfully!');
         fetchAdminOrders();
+        startAutoRefresh();
       } else {
-        // Verify passcode
         if (enteredPasscode === storedPasscode) {
           sessionStorage.setItem('sadhna-admin-unlocked', 'true');
           document.getElementById('adminPinGateOverlay').style.display = 'none';
           showToast('🟢 Passcode verified! Admin Portal unlocked.');
           fetchAdminOrders();
+          startAutoRefresh();
         } else {
-          if (errorMsg) {
-            errorMsg.textContent = '❌ Incorrect 6-Digit Passcode. Access Denied.';
-            errorMsg.style.display = 'block';
-          }
+          if (errorMsg) { errorMsg.textContent = '❌ Incorrect 6-Digit Passcode. Access Denied.'; errorMsg.style.display = 'block'; }
           showToast('❌ Incorrect Passcode!');
         }
       }
@@ -309,16 +298,15 @@
 
     function toggleGatePinMask(checkbox) {
       const type = checkbox.checked ? 'text' : 'password';
-      ['gatePin1', 'gatePin2', 'gatePin3', 'gatePin4', 'gatePin5', 'gatePin6'].forEach(id => {
+      ['gatePin1','gatePin2','gatePin3','gatePin4','gatePin5','gatePin6'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.type = type;
       });
     }
 
     function moveGatePin(current, nextId, prevId) {
-      if (current.value.length === 1 && nextId) {
-        document.getElementById(nextId).focus();
-      }
+      if (current.value.length === 1 && nextId) document.getElementById(nextId).focus();
+      if (current.value.length === 0 && prevId) document.getElementById(prevId).focus();
     }
 
     function resetAdminPasscode() {
@@ -337,22 +325,47 @@
       }
     }
 
-    async function fetchAdminOrders() {
+    // ===== AUTO-REFRESH (every 30 seconds for new orders) =====
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        fetchAdminOrders(true); // silent refresh
+      }, 30000);
+    }
+
+    // ===== FETCH ORDERS =====
+    async function fetchAdminOrders(silent = false) {
+      if (!silent) {
+        const container = document.getElementById('adminOrdersContainer');
+        if (container && allAdminOrders.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:40px;color:#7f8c8d;"><i class="fas fa-spinner fa-spin" style="font-size:30px;"></i><br><br>Loading orders...</div>`;
+        }
+      }
       try {
         const res = await fetch('/api/orders');
+        if (!res.ok) throw new Error('API ' + res.status);
         const data = await res.json();
         if (data.success) {
+          const prevCount = allAdminOrders.length;
           allAdminOrders = data.orders || [];
           renderAdminOrders();
           updateAdminStats();
+          // Notify if new orders came in (silent refresh)
+          if (silent && allAdminOrders.length > prevCount) {
+            showToast(`🔔 ${allAdminOrders.length - prevCount} new order(s) received!`);
+          }
+        } else {
+          throw new Error('API returned success: false');
         }
       } catch (err) {
-        console.warn('[admin] Backend offline, loading local cache:', err);
+        if (!silent) {
+          console.warn('[admin] Backend fetch failed, using localStorage cache:', err);
+          showToast('⚠️ Could not connect to server. Showing cached data.');
+        }
         try {
-          allAdminOrders = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
-          if (!Array.isArray(allAdminOrders)) allAdminOrders = [];
-        } catch (parseErr) {
-          console.error('[admin] localStorage parse error:', parseErr);
+          const cached = JSON.parse(localStorage.getItem('sadhna-orders') || '[]');
+          allAdminOrders = Array.isArray(cached) ? cached : [];
+        } catch (e) {
           allAdminOrders = [];
         }
         renderAdminOrders();
@@ -360,15 +373,18 @@
       }
     }
 
+    // ===== STATS =====
     function updateAdminStats() {
-      const totalRev = allAdminOrders.reduce((sum, o) => sum + (o.finalAmount || 0), 0);
-      document.getElementById('statRevenue').textContent = '₹' + totalRev.toLocaleString('en-IN');
-      document.getElementById('statTotalOrders').textContent = allAdminOrders.length;
-      document.getElementById('statPending').textContent = allAdminOrders.filter(o => o.status === 'Pending Approval').length;
-      document.getElementById('statApproved').textContent = allAdminOrders.filter(o => o.status === 'Approved' || o.status === 'Shipped' || o.status === 'Delivered').length;
-      document.getElementById('statOutOfStock').textContent = allAdminOrders.filter(o => o.status === 'Out of Stock / Rejected').length;
+      const totalRev = allAdminOrders.reduce((sum, o) => sum + (Number(o.finalAmount) || 0), 0);
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      set('statRevenue', '₹' + totalRev.toLocaleString('en-IN'));
+      set('statTotalOrders', allAdminOrders.length);
+      set('statPending', allAdminOrders.filter(o => o.status === 'Pending Approval').length);
+      set('statApproved', allAdminOrders.filter(o => ['Approved','Shipped','Delivered'].includes(o.status)).length);
+      set('statOutOfStock', allAdminOrders.filter(o => o.status === 'Out of Stock / Rejected').length);
     }
 
+    // ===== FILTER =====
     function filterOrders(status, btn) {
       currentFilter = status;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -376,13 +392,12 @@
       renderAdminOrders();
     }
 
+    // ===== RENDER ORDERS =====
     function renderAdminOrders() {
       const container = document.getElementById('adminOrdersContainer');
-      let filtered = allAdminOrders;
+      if (!container) return;
 
-      if (currentFilter !== 'all') {
-        filtered = allAdminOrders.filter(o => o.status === currentFilter);
-      }
+      let filtered = currentFilter === 'all' ? allAdminOrders : allAdminOrders.filter(o => o.status === currentFilter);
 
       if (filtered.length === 0) {
         container.innerHTML = `
@@ -397,23 +412,22 @@
 
       container.innerHTML = filtered.map(ord => {
         const isPending = ord.status === 'Pending Approval';
-        const isApproved = ord.status === 'Approved' || ord.status === 'Shipped' || ord.status === 'Delivered';
+        const isApproved = ['Approved','Shipped','Delivered'].includes(ord.status);
         const isRejected = ord.status === 'Out of Stock / Rejected';
-
         const statusBadgeClass = isPending ? 'status-pending' : isApproved ? 'status-approved' : 'status-rejected';
         const statusIcon = isPending ? 'fa-clock' : isApproved ? 'fa-circle-check' : 'fa-circle-xmark';
 
         const waMsg = encodeURIComponent(
-          `🌿 *SADHNA AYURVEDA - ORDER STATUS UPDATE*\n\n` +
-          `🆔 *Order ID:* ${ord.id || ord.paymentId}\n` +
-          `📦 *Status:* ${ord.status}\n` +
-          `🚚 *Shipment AWB:* ${ord.awbNumber || 'Processing'}\n` +
-          `💰 *Total:* ₹${(ord.finalAmount || 0).toLocaleString('en-IN')}\n\n` +
-          `Thank you for choosing Sadhna Ayurveda!`
+          `\uD83C\uDF3F *SADHNA AYURVEDA - ORDER STATUS UPDATE*\n\n` +
+          `\uD83D\uDD35 *Order ID:* ${ord.id || ord.paymentId}\n` +
+          `\uD83D\uDCE6 *Status:* ${ord.status}\n` +
+          `\uD83D\uDE9A *Shipment AWB:* ${ord.awbNumber || 'Processing'}\n` +
+          `\uD83D\uDCB0 *Total:* \u20B9${(ord.finalAmount || 0).toLocaleString('en-IN')}\n\n` +
+          `Thank you for choosing Sadhna Ayurveda! \uD83D\uDE4F`
         );
 
         return `
-          <div class="order-card-admin">
+          <div class="order-card-admin" id="card_${ord.id}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
               <div>
                 <div style="display:flex;align-items:center;gap:10px;">
@@ -423,7 +437,7 @@
                   </span>
                 </div>
                 <div style="font-size:12px;color:#7f8c8d;margin-top:4px;">
-                  <i class="fas fa-calendar-alt"></i> Placed on ${ord.timestamp || 'Recently'} | 
+                  <i class="fas fa-calendar-alt"></i> Placed on ${ord.timestamp || 'Recently'} |
                   <strong>Payment:</strong> ${ord.payMethod === 'razorpay' ? '💳 Razorpay Online' : '💵 Cash on Delivery (COD)'}
                 </div>
               </div>
@@ -450,8 +464,8 @@
                 </div>
                 <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
                   <span style="font-size:12px;color:#7f8c8d;font-weight:600;">AWB:</span>
-                  <input type="text" value="${ord.awbNumber || ''}" placeholder="Assign AWB..." id="awb_${ord.id}" style="padding:4px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;width:140px;" />
-                  <button onclick="updateAWB('${ord.id}')" style="background:#5c3a21;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;">Save AWB</button>
+                  <input type="text" value="${ord.awbNumber || ''}" placeholder="Assign AWB..." id="awb_${ord.id}" style="padding:4px 8px;border:1px solid #ccc;border-radius:6px;font-size:12px;width:130px;" />
+                  <button onclick="updateAWB('${ord.id}')" style="background:#5c3a21;color:#fff;border:none;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;white-space:nowrap;">Save AWB</button>
                 </div>
               </div>
             </div>
@@ -459,23 +473,27 @@
             <!-- ADMIN ACTION BUTTONS BAR -->
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
               <div style="display:flex;gap:10px;align-items:center;">
+                ${isPending ? `
                 <button class="btn-approve" onclick="approveOrder('${ord.id}')">
                   <i class="fas fa-circle-check"></i> Approve Order
                 </button>
                 <button class="btn-reject" onclick="rejectOrder('${ord.id}')">
                   <i class="fas fa-circle-xmark"></i> Mark Out of Stock / Reject
-                </button>
+                </button>` : `
+                <button class="btn-approve" onclick="approveOrder('${ord.id}')" style="opacity:0.6;cursor:default;" disabled>
+                  <i class="fas fa-circle-check"></i> Already Processed
+                </button>`}
               </div>
               <div style="display:flex;gap:8px;align-items:center;">
                 <select onchange="updateOrderStatus('${ord.id}', this.value)" style="padding:8px 12px;border-radius:8px;border:1px solid #ccc;font-size:13px;font-family:inherit;cursor:pointer;">
                   <option value="" disabled selected>Update Stage...</option>
-                  <option value="Pending Approval">⏳ Pending Approval</option>
-                  <option value="Approved">✅ Approved (Packing)</option>
-                  <option value="Shipped">🚚 Shipped / In Transit</option>
-                  <option value="Delivered">🏠 Delivered</option>
-                  <option value="Out of Stock / Rejected">❌ Out of Stock</option>
+                  <option value="Pending Approval" ${ord.status==='Pending Approval'?'selected':''}>⏳ Pending Approval</option>
+                  <option value="Approved" ${ord.status==='Approved'?'selected':''}>✅ Approved (Packing)</option>
+                  <option value="Shipped" ${ord.status==='Shipped'?'selected':''}>🚚 Shipped / In Transit</option>
+                  <option value="Delivered" ${ord.status==='Delivered'?'selected':''}>🏠 Delivered</option>
+                  <option value="Out of Stock / Rejected" ${ord.status==='Out of Stock / Rejected'?'selected':''}>❌ Out of Stock</option>
                 </select>
-                <a href="https://wa.me/91${ord.phone}?text=${waMsg}" target="_blank" class="filter-btn" style="background:#25d366;color:#fff;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+                <a href="https://wa.me/91${(ord.phone||'').replace(/\D/g,'')}?text=${waMsg}" target="_blank" rel="noopener" class="filter-btn" style="background:#25d366;color:#fff;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
                   <i class="fab fa-whatsapp"></i> WhatsApp Customer
                 </a>
               </div>
@@ -485,10 +503,10 @@
       }).join('');
 
       // XSS Fix: assign user-data fields via textContent after innerHTML is set
-      filtered.forEach((ord, i) => {
-        const cards = container.querySelectorAll('.order-card-admin');
-        if (!cards[i]) return;
-        const set = (cls, val) => { const el = cards[i].querySelector(cls); if (el) el.textContent = String(val || ''); };
+      filtered.forEach((ord) => {
+        const card = document.getElementById(`card_${ord.id}`);
+        if (!card) return;
+        const set = (cls, val) => { const el = card.querySelector(cls); if (el) el.textContent = String(val || ''); };
         set('.ord-name', ord.name);
         set('.ord-phone', ord.phone);
         set('.ord-email', ord.email);
@@ -497,23 +515,29 @@
       });
     }
 
+    // ===== APPROVE ORDER =====
     async function approveOrder(orderId) {
       try {
         const res = await fetch(`/api/orders/${orderId}/approve`, { method: 'PUT' });
+        if (!res.ok) throw new Error('API ' + res.status);
         const data = await res.json();
-        showToast(data.message || 'Order approved!');
+        showToast(data.success ? `✅ Order #${orderId} Approved & Sent to Packing!` : (data.message || 'Approved!'));
+        await fetchAdminOrders();
       } catch (err) {
+        console.warn('[admin] approveOrder offline fallback:', err);
         const index = allAdminOrders.findIndex(o => o.id === orderId || o.paymentId === orderId);
         if (index !== -1) {
           allAdminOrders[index].status = 'Approved';
           allAdminOrders[index].stockAvailable = true;
           localStorage.setItem('sadhna-orders', JSON.stringify(allAdminOrders));
-          showToast(`✅ Order #${orderId} Approved & Sent to Packing!`);
+          showToast(`✅ Order #${orderId} Approved (offline mode)!`);
+          renderAdminOrders();
+          updateAdminStats();
         }
       }
-      fetchAdminOrders();
     }
 
+    // ===== REJECT ORDER =====
     async function rejectOrder(orderId) {
       const reason = prompt('Enter reason for marking Out of Stock / Rejecting:', 'Item currently out of stock in warehouse');
       if (reason === null) return;
@@ -524,20 +548,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason })
         });
+        if (!res.ok) throw new Error('API ' + res.status);
         const data = await res.json();
-        showToast(data.message || 'Order marked Out of Stock!');
+        showToast(data.success ? `❌ Order #${orderId} marked Out of Stock!` : (data.message || 'Rejected!'));
+        await fetchAdminOrders();
       } catch (err) {
+        console.warn('[admin] rejectOrder offline fallback:', err);
         const index = allAdminOrders.findIndex(o => o.id === orderId || o.paymentId === orderId);
         if (index !== -1) {
           allAdminOrders[index].status = 'Out of Stock / Rejected';
           allAdminOrders[index].stockAvailable = false;
           localStorage.setItem('sadhna-orders', JSON.stringify(allAdminOrders));
-          showToast(`❌ Order #${orderId} marked as Out of Stock!`);
+          showToast(`❌ Order #${orderId} marked Out of Stock (offline)!`);
+          renderAdminOrders();
+          updateAdminStats();
         }
       }
-      fetchAdminOrders();
     }
 
+    // ===== UPDATE AWB =====
     async function updateAWB(orderId) {
       const input = document.getElementById(`awb_${orderId}`);
       if (!input || !input.value.trim()) {
@@ -547,44 +576,53 @@
       const awbNumber = input.value.trim();
 
       try {
-        await fetch(`/api/orders/${orderId}/status`, {
+        const res = await fetch(`/api/orders/${orderId}/status`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ awbNumber })
         });
+        if (!res.ok) throw new Error('API ' + res.status);
         showToast(`🚚 AWB ${awbNumber} saved for Order #${orderId}`);
+        await fetchAdminOrders();
       } catch (err) {
+        console.warn('[admin] updateAWB offline fallback:', err);
         const index = allAdminOrders.findIndex(o => o.id === orderId || o.paymentId === orderId);
         if (index !== -1) {
           allAdminOrders[index].awbNumber = awbNumber;
           localStorage.setItem('sadhna-orders', JSON.stringify(allAdminOrders));
-          showToast(`🚚 AWB ${awbNumber} saved!`);
+          showToast(`🚚 AWB ${awbNumber} saved (offline)!`);
+          renderAdminOrders();
         }
       }
-      fetchAdminOrders();
     }
 
+    // ===== UPDATE ORDER STATUS =====
     async function updateOrderStatus(orderId, status) {
       if (!status) return;
 
       try {
-        await fetch(`/api/orders/${orderId}/status`, {
+        const res = await fetch(`/api/orders/${orderId}/status`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
-        showToast(`Status updated to: ${status}`);
+        if (!res.ok) throw new Error('API ' + res.status);
+        showToast(`📦 Status updated → ${status}`);
+        await fetchAdminOrders();
       } catch (err) {
+        console.warn('[admin] updateOrderStatus offline fallback:', err);
         const index = allAdminOrders.findIndex(o => o.id === orderId || o.paymentId === orderId);
         if (index !== -1) {
           allAdminOrders[index].status = status;
           localStorage.setItem('sadhna-orders', JSON.stringify(allAdminOrders));
-          showToast(`Status updated to: ${status}`);
+          showToast(`📦 Status updated → ${status} (offline)`);
+          renderAdminOrders();
+          updateAdminStats();
         }
       }
-      fetchAdminOrders();
     }
 
+    // ===== TOAST =====
     function showToast(msg) {
       const t = document.getElementById('toast');
       if (!t) return;
