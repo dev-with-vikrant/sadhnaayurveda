@@ -2268,3 +2268,102 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🌿 Sadhna Ayurveda website with Role-Based Dashboard & Analytics loaded successfully!');
+
+// =================== TRACK ORDER MODAL ===================
+function openTrackOrderModal() {
+  const overlay = document.getElementById('trackOrderOverlay');
+  const modal = document.getElementById('trackOrderModal');
+  if (!overlay || !modal) return;
+  overlay.classList.add('active');
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  const input = document.getElementById('trackOrderInput');
+  if (input) { input.value = ''; input.focus(); }
+  const result = document.getElementById('trackOrderResult');
+  if (result) { result.style.display = 'none'; result.innerHTML = ''; }
+}
+window.openTrackOrderModal = openTrackOrderModal;
+
+function closeTrackOrderModal() {
+  const overlay = document.getElementById('trackOrderOverlay');
+  const modal = document.getElementById('trackOrderModal');
+  if (!overlay || !modal) return;
+  overlay.classList.remove('active');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+window.closeTrackOrderModal = closeTrackOrderModal;
+
+async function searchTrackOrder() {
+  const input = document.getElementById('trackOrderInput');
+  const resultBox = document.getElementById('trackOrderResult');
+  if (!input || !resultBox) return;
+
+  const query = (input.value || '').trim();
+  if (!query) {
+    showToast('⚠️ Please enter your Order ID or Phone Number.');
+    input.focus();
+    return;
+  }
+
+  resultBox.style.display = 'block';
+  resultBox.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-secondary);"><i class="fas fa-spinner fa-spin" style="font-size:24px;color:var(--accent-brown);"></i><br><br>Searching for your order...</div>`;
+
+  try {
+    const res = await fetch('/api/orders');
+    const data = await res.json();
+    if (!data.success) throw new Error('Failed to load orders');
+
+    const orders = data.orders || [];
+    const matches = orders.filter(o =>
+      (o.id && o.id.toLowerCase() === query.toLowerCase()) ||
+      (o.paymentId && o.paymentId.toLowerCase() === query.toLowerCase()) ||
+      (o.phone && o.phone.replace(/\D/g, '') === query.replace(/\D/g, ''))
+    );
+
+    if (matches.length === 0) {
+      resultBox.innerHTML = `
+        <div style="text-align:center;padding:24px;background:var(--bg-secondary);border-radius:12px;border:1px dashed var(--border-light);">
+          <i class="fas fa-box-open" style="font-size:36px;color:var(--text-muted);margin-bottom:12px;display:block;"></i>
+          <p style="font-weight:600;color:var(--text-primary);margin-bottom:6px;">No order found</p>
+          <p style="font-size:13px;color:var(--text-muted);">Please check your Order ID or phone number and try again.</p>
+        </div>`;
+      return;
+    }
+
+    const statusColors = {
+      'Pending Approval': { bg: '#fff8e1', color: '#f39c12', icon: 'fa-clock' },
+      'Approved':         { bg: '#e8f5e9', color: '#27ae60', icon: 'fa-circle-check' },
+      'Shipped':          { bg: '#e3f2fd', color: '#2196f3', icon: 'fa-truck-fast' },
+      'Delivered':        { bg: '#e8f5e9', color: '#1b5e20', icon: 'fa-house-circle-check' },
+      'Out of Stock / Rejected': { bg: '#fdecea', color: '#e53935', icon: 'fa-ban' }
+    };
+
+    const cards = matches.map(o => {
+      const s = statusColors[o.status] || { bg: '#f5f5f5', color: '#555', icon: 'fa-circle-dot' };
+      return `
+        <div style="background:${s.bg};border:1.5px solid ${s.color}30;border-radius:12px;padding:18px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text-secondary);">ORDER ID</span>
+            <span style="font-size:13px;font-weight:700;background:${s.color};color:#fff;padding:3px 10px;border-radius:20px;"><i class="fas ${s.icon}"></i> ${sanitize(o.status)}</span>
+          </div>
+          <div style="font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">${sanitize(o.id)}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;">
+            <div><span style="color:var(--text-muted);">Customer:</span><br><strong>${sanitize(o.name)}</strong></div>
+            <div><span style="color:var(--text-muted);">Amount:</span><br><strong>₹${Number(o.finalAmount).toLocaleString('en-IN')}</strong></div>
+            <div><span style="color:var(--text-muted);">Items:</span><br><strong>${sanitize(o.itemsList)}</strong></div>
+            <div><span style="color:var(--text-muted);">Payment:</span><br><strong>${o.payMethod === 'cod' ? 'Cash on Delivery' : 'Razorpay (Paid)'}</strong></div>
+            ${o.awbNumber ? `<div style="grid-column:1/-1;"><span style="color:var(--text-muted);">AWB / Courier Tracking No:</span><br><strong>${sanitize(o.awbNumber)}</strong></div>` : ''}
+            <div style="grid-column:1/-1;"><span style="color:var(--text-muted);">Order Date:</span> <strong>${sanitize(o.timestamp || 'N/A')}</strong></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    resultBox.innerHTML = `<h4 style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;"><i class="fas fa-box"></i> Found ${matches.length} order(s)</h4>${cards}`;
+  } catch (err) {
+    resultBox.innerHTML = `<div style="text-align:center;padding:20px;background:#fdecea;border-radius:12px;color:#c0392b;"><i class="fas fa-triangle-exclamation"></i> Could not fetch order details. Please try again later.</div>`;
+    console.error('[trackOrder] Error:', err);
+  }
+}
+window.searchTrackOrder = searchTrackOrder;
+
