@@ -278,26 +278,30 @@ function toggleCart() {
   document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
 }
 
-document.getElementById('cartBtn').addEventListener('click', toggleCart);
+const cartBtnEl = document.getElementById('cartBtn');
+if (cartBtnEl) cartBtnEl.addEventListener('click', toggleCart);
 
-document.getElementById('checkoutBtn').addEventListener('click', openCheckoutModal);
+const checkoutBtnEl = document.getElementById('checkoutBtn');
+if (checkoutBtnEl) checkoutBtnEl.addEventListener('click', openCheckoutModal);
 
 updateCartUI();
 
 // =================== BACK TO TOP ===================
 const backToTop = document.getElementById('backToTop');
 
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 500) {
-    backToTop.classList.add('visible');
-  } else {
-    backToTop.classList.remove('visible');
-  }
-});
+if (backToTop) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+      backToTop.classList.add('visible');
+    } else {
+      backToTop.classList.remove('visible');
+    }
+  });
 
-backToTop.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
 // =================== TOAST NOTIFICATIONS ===================
 let toastTimeout;
@@ -361,17 +365,24 @@ function goToTesti(index) {
   testiDots.forEach((d, i) => d.classList.toggle('active', i === testiCurrent));
 }
 
-document.getElementById('testiNext').addEventListener('click', () => {
-  goToTesti(testiCurrent + 1);
-  clearInterval(testiInterval);
-  testiInterval = setInterval(() => goToTesti(testiCurrent + 1), 5000);
-});
+const testiNextBtn = document.getElementById('testiNext');
+const testiPrevBtn = document.getElementById('testiPrev');
 
-document.getElementById('testiPrev').addEventListener('click', () => {
-  goToTesti(testiCurrent - 1);
-  clearInterval(testiInterval);
-  testiInterval = setInterval(() => goToTesti(testiCurrent + 1), 5000);
-});
+if (testiNextBtn) {
+  testiNextBtn.addEventListener('click', () => {
+    goToTesti(testiCurrent + 1);
+    clearInterval(testiInterval);
+    testiInterval = setInterval(() => goToTesti(testiCurrent + 1), 5000);
+  });
+}
+
+if (testiPrevBtn) {
+  testiPrevBtn.addEventListener('click', () => {
+    goToTesti(testiCurrent - 1);
+    clearInterval(testiInterval);
+    testiInterval = setInterval(() => goToTesti(testiCurrent + 1), 5000);
+  });
+}
 
 testiDots.forEach((dot, i) => {
   dot.addEventListener('click', () => goToTesti(i));
@@ -764,18 +775,15 @@ animElements.forEach((el, i) => {
 });
 
 // =================== ACCOUNT / GIFT BUTTONS ===================
-document.getElementById('accountBtn').addEventListener('click', () => {
-  openAccountModal();
-});
+const accountBtnEl = document.getElementById('accountBtn');
+if (accountBtnEl) accountBtnEl.addEventListener('click', openAccountModal);
 
-document.getElementById('giftBtn').addEventListener('click', () => {
-  showToast('🎁 Special offers & gifts loading...');
-});
+const giftBtnEl = document.getElementById('giftBtn');
+if (giftBtnEl) giftBtnEl.addEventListener('click', () => showToast('🎁 Special offers & gifts loading...'));
 
-// =================== VOICE SEARCH (MOCK) ===================
-document.querySelector('.search-mic').addEventListener('click', () => {
-  showToast('🎤 Voice search: speak now...');
-});
+// =================== VOICE SEARCH ===================
+const searchMicEl = document.querySelector('.search-mic');
+if (searchMicEl) searchMicEl.addEventListener('click', startVoiceSearch);
 
 // =================== RAZORPAY PAYMENT GATEWAY INTEGRATION ===================
 // IMPORTANT: Replace the key below with your actual Razorpay Key ID from razorpay.com
@@ -1841,38 +1849,6 @@ async function detectLiveLocation(targetTextareaId) {
   );
 }
 
-// Secret Admin Access (Keyboard Shortcut: Ctrl + Shift + A & Footer Triple-Click)
-document.addEventListener('keydown', (e) => {
-  // With Ctrl+Shift held, e.key is always uppercase — 'a' branch is dead code
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-    e.preventDefault();
-    openAdminPortalSecret();
-  }
-});
-
-let secretClickCount = 0;
-let secretClickTimer = null;
-
-function handleSecretAdminClick() {
-  secretClickCount++;
-  clearTimeout(secretClickTimer);
-  secretClickTimer = setTimeout(() => {
-    secretClickCount = 0;
-  }, 1000);
-
-  if (secretClickCount >= 3) {
-    secretClickCount = 0;
-    openAdminPortalSecret();
-  }
-}
-
-function openAdminPortalSecret() {
-  showToast('🔐 Opening Sadhna Admin Portal...');
-  setTimeout(() => {
-    window.open('admin.html', '_blank');
-  }, 600);
-}
-
 function saveUserProfile(e) {
   e.preventDefault();
   const nameEl = document.getElementById('profileName');
@@ -2248,14 +2224,47 @@ function renderAdminTabDashboard() {
   }
 }
 
+// =================== SECRET ADMIN KEYBOARD SHORTCUT & FOOTER TRIPLE-CLICK ===================
+document.addEventListener('keydown', (e) => {
+  // Support Ctrl+Shift+A (Windows/Linux) or Cmd+Shift+A (Mac) across all keyboards/browsers
+  const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+  const isShift = e.shiftKey;
+  const isKeyA = e.key === 'a' || e.key === 'A' || e.code === 'KeyA' || e.keyCode === 65;
+
+  if (isCtrlOrCmd && isShift && isKeyA) {
+    e.preventDefault();
+    openAdminPortalSecret();
+  }
+});
+
+let secretClickCount = 0;
+let secretClickTimer = null;
+
+function handleSecretAdminClick() {
+  secretClickCount++;
+  clearTimeout(secretClickTimer);
+  secretClickTimer = setTimeout(() => {
+    secretClickCount = 0;
+  }, 1000);
+
+  if (secretClickCount >= 3) {
+    secretClickCount = 0;
+    openAdminPortalSecret();
+  }
+}
+window.handleSecretAdminClick = handleSecretAdminClick;
+
+function openAdminPortalSecret() {
+  showToast('🔐 Opening Sadhna Admin Portal...');
+  setTimeout(() => {
+    window.open('admin.html', '_blank');
+  }, 400);
+}
+window.openAdminPortalSecret = openAdminPortalSecret;
+
 // Initialize Dashboard state on load
 document.addEventListener('DOMContentLoaded', () => {
   applyDashboardRoleState();
 });
-
-// =================== ADMIN PIN SECURITY NOTE ===================
-// IMPORTANT: The Admin PIN is currently stored in localStorage which is
-// readable by any browser extension or injected script. For production,
-// move PIN verification to a server-side endpoint.
 
 console.log('🌿 Sadhna Ayurveda website with Role-Based Dashboard & Analytics loaded successfully!');
