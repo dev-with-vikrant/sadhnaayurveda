@@ -1,0 +1,22 @@
+{
+  "name": "Sadhna Ayurveda",
+  "short_name": "Sadhna Ayurveda",
+  "description": "Pure Ayurvedic Wellness for Everyday Health — 100% Organic Herbal Supplements",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#6b4226",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
