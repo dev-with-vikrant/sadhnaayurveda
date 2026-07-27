@@ -1989,16 +1989,32 @@ function renderUserOrders() {
   }).join('');
 }
 
-// Role-based Dashboard Management with 4-Digit Security PIN Protection
+// Role-based Dashboard Management with Custom 4-Digit Security PIN Protection
 let currentDashboardRole = 'customer'; // Default role is 'customer'
-let ADMIN_SECURITY_PIN = localStorage.getItem('sadhna-admin-pin') || '1234';
+let ADMIN_SECURITY_PIN = localStorage.getItem('sadhna-admin-pin') || '';
 
 function openAdminPinModal() {
   const overlay = document.getElementById('adminPinOverlay');
   const modal = document.getElementById('adminPinModal');
   const errorMsg = document.getElementById('pinErrorMessage');
 
+  const titleEl = document.getElementById('pinModalTitle');
+  const subtextEl = document.getElementById('pinModalSubtext');
+  const submitBtnEl = document.getElementById('pinSubmitBtn');
+
   if (errorMsg) errorMsg.style.display = 'none';
+
+  if (!ADMIN_SECURITY_PIN) {
+    // First-Time Setup Mode: prompt admin to set custom PIN
+    if (titleEl) titleEl.textContent = '🔑 Set Admin Security PIN';
+    if (subtextEl) subtextEl.textContent = 'First-Time Setup: Create your custom 4-digit secret PIN';
+    if (submitBtnEl) submitBtnEl.innerHTML = '<i class="fas fa-floppy-disk"></i> Save PIN &amp; Unlock Admin';
+  } else {
+    // Verification Mode: prompt for saved PIN
+    if (titleEl) titleEl.textContent = 'Enter 4-Digit Security PIN';
+    if (subtextEl) subtextEl.textContent = 'Enter your custom secret PIN to access Store Admin';
+    if (submitBtnEl) submitBtnEl.innerHTML = '<i class="fas fa-key"></i> Unlock Admin Panel';
+  }
 
   ['pinDigit1', 'pinDigit2', 'pinDigit3', 'pinDigit4'].forEach(id => {
     const el = document.getElementById(id);
@@ -2050,24 +2066,64 @@ function verifyAdminPin(e) {
   const errorMsg = document.getElementById('pinErrorMessage');
   const inputGroup = document.getElementById('pinInputGroup');
 
-  if (enteredPin === ADMIN_SECURITY_PIN) {
+  if (enteredPin.length !== 4 || !/^\d{4}$/.test(enteredPin)) {
+    showToast('⚠️ Please enter all 4 digits of your Security PIN.');
+    return;
+  }
+
+  if (!ADMIN_SECURITY_PIN) {
+    // First Time PIN Setup: save entered PIN
+    localStorage.setItem('sadhna-admin-pin', enteredPin);
+    ADMIN_SECURITY_PIN = enteredPin;
     sessionStorage.setItem('sadhna-admin-unlocked', 'true');
     closeAdminPinModal();
-    showToast('🟢 Security PIN Verified! Admin panel unlocked.');
+    showToast('🟢 Custom Admin Security PIN created & saved successfully!');
 
     currentDashboardRole = 'admin';
     applyDashboardRoleState();
     switchAccountTab('admin', document.getElementById('navTabAdmin'));
   } else {
-    if (errorMsg) errorMsg.style.display = 'block';
-    if (inputGroup) {
-      inputGroup.style.animation = 'none';
-      inputGroup.offsetHeight;
-      inputGroup.style.animation = 'pinShake 0.4s ease-in-out';
+    // Verify against saved custom PIN
+    if (enteredPin === ADMIN_SECURITY_PIN) {
+      sessionStorage.setItem('sadhna-admin-unlocked', 'true');
+      closeAdminPinModal();
+      showToast('🟢 Security PIN Verified! Admin panel unlocked.');
+
+      currentDashboardRole = 'admin';
+      applyDashboardRoleState();
+      switchAccountTab('admin', document.getElementById('navTabAdmin'));
+    } else {
+      if (errorMsg) errorMsg.style.display = 'block';
+      if (inputGroup) {
+        inputGroup.style.animation = 'none';
+        inputGroup.offsetHeight;
+        inputGroup.style.animation = 'pinShake 0.4s ease-in-out';
+      }
+      showToast('❌ Incorrect Security PIN!');
     }
-    showToast('❌ Incorrect Security PIN!');
   }
 }
+
+function changeAdminPin() {
+  const stored = localStorage.getItem('sadhna-admin-pin') || '';
+  if (stored) {
+    const current = prompt('Enter CURRENT 4-Digit Admin Security PIN:');
+    if (current === null) return;
+    if (current !== stored) {
+      showToast('❌ Incorrect current PIN!');
+      return;
+    }
+  }
+  const newPin = prompt('Enter NEW 4-Digit Security PIN (4 numbers):');
+  if (newPin && newPin.length === 4 && /^\d{4}$/.test(newPin)) {
+    localStorage.setItem('sadhna-admin-pin', newPin);
+    ADMIN_SECURITY_PIN = newPin;
+    showToast('✅ Admin Security PIN updated successfully!');
+  } else if (newPin !== null) {
+    showToast('⚠️ Invalid PIN! Must be exactly 4 digits.');
+  }
+}
+window.changeAdminPin = changeAdminPin;
 
 function toggleDashboardRole() {
   if (currentDashboardRole === 'customer') {
