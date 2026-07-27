@@ -971,8 +971,9 @@ function showOrderSuccessModal(orderData) {
   );
 
   const waBtn = document.getElementById('sendWhatsappOrderBtn');
+  const waUrl = `https://wa.me/919718179397?text=${waMsgText}`;
   if (waBtn) {
-    waBtn.href = `https://wa.me/919718179397?text=${waMsgText}`;
+    waBtn.href = waUrl;
   }
 
   const receiptContent = document.getElementById('receiptContent');
@@ -1021,6 +1022,12 @@ function showOrderSuccessModal(orderData) {
   if (overlay) overlay.classList.add('active');
   if (modal) modal.classList.add('active');
   document.body.style.overflow = 'hidden';
+
+  // Auto-send WhatsApp notification to store owner after 1.5 seconds
+  // Small delay ensures browser popup-blocker is less likely to block it
+  setTimeout(() => {
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+  }, 1500);
 }
 
 function closeOrderSuccessModal() {
