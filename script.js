@@ -1028,6 +1028,29 @@ function showOrderSuccessModal(orderData) {
   setTimeout(() => {
     window.open(waUrl, '_blank', 'noopener,noreferrer');
   }, 1500);
+
+  // Auto-send WhatsApp ORDER CONFIRMATION to customer after 3.5 seconds
+  const customerPhone = (orderData.phone || '').replace(/\D/g, '');
+  if (customerPhone.length >= 10) {
+    const customerWaMsg = encodeURIComponent(
+      `✅ *Order Confirmed! - Sadhna Ayurveda*\n\n` +
+      `Namaste *${orderData.name}* 🙏\n\n` +
+      `Your order has been successfully placed. Here are your order details:\n\n` +
+      `🆔 *Order ID:* ${orderData.paymentId}\n` +
+      `🛒 *Items:* ${orderData.itemsList}\n` +
+      `💰 *Total Amount:* ₹${(orderData.finalAmount || 0).toLocaleString('en-IN')}\n` +
+      `💳 *Payment:* ${orderData.payMethod === 'razorpay' ? 'Online (Razorpay)' : 'Cash on Delivery (COD)'}\n` +
+      `📍 *Delivery To:* ${orderData.address}\n` +
+      `⏰ *Ordered On:* ${orderData.timestamp}\n\n` +
+      `📦 Your order is now *Pending Approval*. Our team will review and dispatch it shortly.\n\n` +
+      `For any queries, reply here or call us at *+91 9718179397*.\n\n` +
+      `🌿 _Thank you for choosing Sadhna Ayurveda – Pure Herbal Wellness!_`
+    );
+    const customerWaUrl = `https://wa.me/91${customerPhone.slice(-10)}?text=${customerWaMsg}`;
+    setTimeout(() => {
+      window.open(customerWaUrl, '_blank', 'noopener,noreferrer');
+    }, 3500);
+  }
 }
 
 function closeOrderSuccessModal() {
