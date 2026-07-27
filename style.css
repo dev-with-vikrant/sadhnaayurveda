@@ -1572,10 +1572,6 @@ button {
   justify-content: center;
   gap: 4px;
 }
-  flex-direction: column;
-  gap: 5px;
-  z-index: 2;
-}
 
 .badge {
   padding: 3px 10px;
