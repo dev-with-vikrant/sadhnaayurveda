@@ -1,5 +1,20 @@
 [
   {
+    "id": "ORD-9617",
+    "paymentId": "COD_SMY7TJ4B",
+    "name": "Realtime Tester",
+    "phone": "9876543210",
+    "email": "realtime@sadhna.com",
+    "address": "123 Rajpur Road, Dehradun, Uttarakhand - 248001",
+    "itemsList": "Sadhna Madhu Shant Caps (x1)",
+    "finalAmount": 3500,
+    "payMethod": "cod",
+    "status": "Approved",
+    "stockAvailable": true,
+    "awbNumber": "TESTAWB",
+    "timestamp": "27/7/2026, 7:39:12 pm"
+  },
+  {
     "id": "ORD-5228",
     "paymentId": "COD_KMPTA9MA",
     "name": "Testing User",
@@ -24,7 +39,7 @@
     "itemsList": "Sadhna Madhu Shant (Diabetes Care) x 1",
     "finalAmount": 3500,
     "payMethod": "razorpay",
-    "status": "Pending Approval",
+    "status": "Approved",
     "stockAvailable": true,
     "awbNumber": "SR849201948",
     "timestamp": "26/7/2026, 2:33:37 pm"
