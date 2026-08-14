@@ -1,16 +1,20 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const cors = require('cors');
+const compression = require('compression');
 const db = require('./supabaseClient');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '439824053286-pvb6vo9dggccn2dhsqbk91a72ru77qs4.apps.googleusercontent.com';
 
+// Enable Gzip/Brotli compression for fast text transfers
+app.use(compression());
+
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:8080,https://sadhnaayurveda.com').split(',');
 app.use(cors({ origin: (o, cb) => (!o || ALLOWED_ORIGINS.includes(o)) ? cb(null, true) : cb(new Error('CORS blocked')) }));
 app.use(express.json({ limit: '50kb' }));
+
 
 const rateLimitMap = new Map();
 function rateLimiter(windowMs, max) {
@@ -134,7 +138,12 @@ app.get('/api/admin/stats', async (_req, res) => {
 });
 
 app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true
+}));
+
 
 app.use((err, _req, res, _next) => {
   console.error('[server] Error:', err.message);

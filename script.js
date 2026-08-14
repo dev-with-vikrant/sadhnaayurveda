@@ -970,11 +970,7 @@ function showOrderSuccessModal(orderData) {
     `⏰ *Time:* ${orderData.timestamp}`
   );
 
-  const waBtn = document.getElementById('sendWhatsappOrderBtn');
-  const waUrl = `https://wa.me/919718179397?text=${waMsgText}`;
-  if (waBtn) {
-    waBtn.href = waUrl;
-  }
+  const adminWaUrl = `https://wa.me/919718179397?text=${waMsgText}`;
 
   const receiptContent = document.getElementById('receiptContent');
   if (receiptContent) {
@@ -1023,13 +1019,12 @@ function showOrderSuccessModal(orderData) {
   if (modal) modal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  // Auto-send WhatsApp notification to store owner after 1.5 seconds
-  // Small delay ensures browser popup-blocker is less likely to block it
+  // 1. AUTOMATED: Send WhatsApp notification to Admin (+91 9718179397) automatically after 1 sec
   setTimeout(() => {
-    window.open(waUrl, '_blank', 'noopener,noreferrer');
-  }, 1500);
+    window.open(adminWaUrl, '_blank', 'noopener,noreferrer');
+  }, 1000);
 
-  // Auto-send WhatsApp ORDER CONFIRMATION to customer after 3.5 seconds
+  // 2. AUTOMATED: Send WhatsApp confirmation to Customer (+91 customerPhone) automatically after 2.5 secs
   const customerPhone = (orderData.phone || '').replace(/\D/g, '');
   if (customerPhone.length >= 10) {
     const customerWaMsg = encodeURIComponent(
@@ -1049,9 +1044,11 @@ function showOrderSuccessModal(orderData) {
     const customerWaUrl = `https://wa.me/91${customerPhone.slice(-10)}?text=${customerWaMsg}`;
     setTimeout(() => {
       window.open(customerWaUrl, '_blank', 'noopener,noreferrer');
-    }, 3500);
+    }, 2500);
   }
 }
+
+
 
 function closeOrderSuccessModal() {
   const overlay = document.getElementById('orderSuccessOverlay');

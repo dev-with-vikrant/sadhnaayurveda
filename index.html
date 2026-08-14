@@ -31,6 +31,10 @@
   <meta property="og:url" content="https://sadhnaayurveda.com/" />
   <meta property="og:site_name" content="Sadhna Ayurveda" />
   <meta property="og:locale" content="en_IN" />
+  <!-- Google Search Official Site Name Signals -->
+  <meta name="application-name" content="Sadhna Ayurveda" />
+  <meta name="apple-mobile-web-app-title" content="Sadhna Ayurveda" />
+
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -38,16 +42,35 @@
   <meta name="twitter:description" content="100% natural Ayurvedic supplements. Shop for Diabetes, Joint Pain, Liver Detox & more. Free shipping across India." />
   <meta name="twitter:image" content="https://sadhnaayurveda.com/images/hero1.png" />
 
-  <!-- Preconnect & Fonts -->
+  <!-- Performance Optimization: Resource Hints -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=23.0" />
+
+
+
+  <!-- Google Search Dedicated WebSite Site Name Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Sadhna Ayurveda",
+    "alternateName": ["Sadhna Ayurveda Store", "SadhnaAyurveda", "Sadhna Ayurveda Official"],
+    "url": "https://sadhnaayurveda.com/"
+  }
+  </script>
 
   <!-- Schema.org JSON-LD Structured Data Graph -->
   <script type="application/ld+json">
   {
+
     "@context": "https://schema.org",
     "@graph": [
       {
@@ -83,7 +106,9 @@
         "@id": "https://sadhnaayurveda.com/#website",
         "url": "https://sadhnaayurveda.com/",
         "name": "Sadhna Ayurveda",
+        "alternateName": ["Sadhna Ayurveda Store", "SadhnaAyurveda", "Sadhna Ayurveda Official"],
         "description": "Pure Ayurvedic Wellness for Everyday Health",
+
         "publisher": {
           "@id": "https://sadhnaayurveda.com/#organization"
         },
@@ -377,15 +402,18 @@
   <!-- ===================== HEADER / NAVBAR ===================== -->
   <header class="header" id="mainHeader">
     <div class="header-inner">
-      <!-- Logo -->
-      <a href="index.html" class="logo-link" aria-label="Sadhna Ayurveda Home">
-        <img src="images/logo.png" alt="Sadhna Ayurveda Logo" class="logo-img" />
+      <!-- Logo with Google Search Microdata -->
+      <a href="https://sadhnaayurveda.com/" class="logo-link" aria-label="Sadhna Ayurveda Home" itemscope itemtype="https://schema.org/WebSite">
+        <meta itemprop="url" content="https://sadhnaayurveda.com/" />
+        <meta itemprop="name" content="Sadhna Ayurveda" />
+        <img src="images/logo.png" alt="Sadhna Ayurveda Logo" class="logo-img" itemprop="image" />
         <div class="logo-text">
-          <span class="logo-name">SADHNA</span>
+          <span class="logo-name" itemprop="name">SADHNA</span>
           <span class="logo-sub">AYURVEDA</span>
           <span class="logo-tagline">HERBS &amp; WELLNESS</span>
         </div>
       </a>
+
 
       <!-- Search Bar -->
       <div class="search-container">
@@ -637,7 +665,7 @@
       <div class="categories-grid">
         <a href="#bestsellers" onclick="filterProducts('diabetes')" class="category-card" id="cat-diabetes">
           <div class="cat-img-wrapper">
-            <img src="images/cat_diabetes.png" alt="Diabetes Care" />
+            <img src="images/cat_diabetes.png" alt="Diabetes Care" loading="lazy" decoding="async" />
             <div class="brand-watermark">SADHNA AYURVEDA</div>
           </div>
           <div class="cat-info">
@@ -647,7 +675,7 @@
         </a>
         <a href="#bestsellers" onclick="filterProducts('joint')" class="category-card" id="cat-joint">
           <div class="cat-img-wrapper">
-            <img src="images/cat_joint.png" alt="Joint &amp; Pain Relief" />
+            <img src="images/cat_joint.png" alt="Joint &amp; Pain Relief" loading="lazy" decoding="async" />
             <div class="brand-watermark">SADHNA AYURVEDA</div>
           </div>
           <div class="cat-info">
@@ -657,7 +685,7 @@
         </a>
         <a href="#bestsellers" onclick="filterProducts('liver')" class="category-card" id="cat-liver">
           <div class="cat-img-wrapper">
-            <img src="images/cat_liver.png" alt="Liver Detox" />
+            <img src="images/cat_liver.png" alt="Liver Detox" loading="lazy" decoding="async" />
             <div class="brand-watermark">SADHNA AYURVEDA</div>
           </div>
           <div class="cat-info">
@@ -667,7 +695,7 @@
         </a>
         <a href="#bestsellers" onclick="filterProducts('mens')" class="category-card" id="cat-mens">
           <div class="cat-img-wrapper">
-            <img src="images/cat_mens.png" alt="Men's Wellness" />
+            <img src="images/cat_mens.png" alt="Men's Wellness" loading="lazy" decoding="async" />
             <div class="brand-watermark">SADHNA AYURVEDA</div>
           </div>
           <div class="cat-info">
@@ -675,6 +703,7 @@
             <p>Shilajit, Safed Musli &amp; Ashwagandha</p>
           </div>
         </a>
+
       </div>
     </div>
   </section>
@@ -722,7 +751,7 @@
         <!-- Product 1 -->
         <div class="product-card" id="prod-madhu" data-category="diabetes capsules sugar">
           <div class="product-img-wrapper">
-            <img src="images/product_diabetes.png" alt="Madhu Shant Diabetes Support Capsules" />
+            <img src="images/product_diabetes.png" alt="Madhu Shant Diabetes Support Capsules" loading="lazy" decoding="async" />
             <div class="product-badges">
               <span class="badge badge-sale">SALE</span>
               <span class="badge badge-organic">Organic</span>
@@ -756,7 +785,7 @@
         <!-- Product 2 -->
         <div class="product-card" id="prod-nirog" data-category="diabetes powder sugar">
           <div class="product-img-wrapper">
-            <img src="images/product_sugar.png" alt="Nirog Sugar Powder" />
+            <img src="images/product_sugar.png" alt="Nirog Sugar Powder" loading="lazy" decoding="async" />
             <div class="product-badges">
               <span class="badge badge-sale">SALE</span>
             </div>
@@ -789,7 +818,8 @@
         <!-- Product 3 -->
         <div class="product-card" id="prod-liver" data-category="liver capsules detox">
           <div class="product-img-wrapper">
-            <img src="images/product_liver.png" alt="Liver Detox Care Capsules" />
+            <img src="images/product_liver.png" alt="Liver Detox Care Capsules" loading="lazy" decoding="async" />
+
             <div class="product-badges">
               <span class="badge badge-new">NEW</span>
               <span class="badge badge-organic">Organic</span>
@@ -1489,11 +1519,9 @@
         <i class="fas fa-check"></i>
       </div>
       <h2 style="font-family:var(--font-display);font-size:22px;color:var(--text-primary);margin-bottom:6px;">Thank You for Your Order!</h2>
-      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">Your order has been placed successfully. Click below to notify our team directly via WhatsApp.</p>
-      
-      <a id="sendWhatsappOrderBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn" style="background:#25d366;color:#ffffff;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:8px;margin-bottom:16px;text-decoration:none;box-shadow:0 4px 15px rgba(37,211,102,0.3);">
-        <i class="fab fa-whatsapp" style="font-size:20px;"></i> Send Order Details to Store Owner (+91 9718179397)
-      </a>
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Your order has been placed successfully. Order details have been sent to WhatsApp.</p>
+
+
 
       <div class="receipt-card" id="receiptContent">
         <!-- Rendered dynamically via script.js -->
@@ -1818,10 +1846,14 @@
   <!-- ===================== TOAST NOTIFICATION ===================== -->
   <div class="toast" id="toast"></div>
 
+  <!-- Bootstrap 5 Official JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
   <!-- Google Identity Services (GIS) Official OAuth SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Razorpay Official SDK -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="script.js?v=23.0"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <script src="script.js?v=23.0" defer></script>
+
+
 </body>
 </html>
