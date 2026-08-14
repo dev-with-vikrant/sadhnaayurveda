@@ -1,5 +1,8 @@
 # Apache Rewrite Rules for Sadhna Ayurveda
 
+# Set landing.html as the primary default homepage for sadhnaayurveda.com
+DirectoryIndex landing.html index.html
+
 RewriteEngine On
 
 # 0. CRITICAL: Let sitemap.xml and robots.txt pass through untouched
