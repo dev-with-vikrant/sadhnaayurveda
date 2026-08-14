@@ -2,6 +2,26 @@
    SADHNA AYURVEDA – MAIN STYLESHEET
    ============================================= */
 
+/* =============================================
+   FIX 7: CONTENT-VISIBILITY — Skip rendering
+   off-screen sections until user scrolls near.
+   Dramatically improves mobile Time to Interactive.
+   ============================================= */
+.trust-section,
+.flash-sale-bar,
+#categories,
+.promo-section,
+#bestsellers,
+.why-section,
+.reviews-section,
+#blog,
+#contact,
+footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 600px;
+}
+
+
 /* ---------- CSS VARIABLES (LIGHT THEME) ---------- */
 :root {
   --bg-primary: #f5f0e8;
