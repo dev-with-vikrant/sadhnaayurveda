@@ -2,6 +2,11 @@
 
 RewriteEngine On
 
+# 0. CRITICAL: Let sitemap.xml and robots.txt pass through untouched
+#    Must be FIRST — before any other rewrite rules
+RewriteRule ^sitemap\.xml$ - [L,NC]
+RewriteRule ^robots\.txt$  - [L,NC]
+
 # 1. Route /admin and /admin/ to admin.html
 RewriteRule ^admin/?$ admin.html [L,QSA]
 
@@ -13,6 +18,10 @@ RewriteRule ^(.*)$ $1.html [L,QSA]
 # 3. Enable CORS headers for REST API requests
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
+    # Force correct MIME type for sitemap
+    <FilesMatch "sitemap\.xml">
+        Header set Content-Type "application/xml; charset=UTF-8"
+    </FilesMatch>
 </IfModule>
 
 # 4. Enable Gzip Compression for Performance
