@@ -1,8 +1,8 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const nodeFs = require('fs');
+const db = require('./supabaseClient');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -29,43 +29,23 @@ function sanitizeStr(val, maxLen = 500) {
   return val.replace(/[<>]/g, '').trim().slice(0, maxLen);
 }
 
-const DB_FILE = path.join(__dirname, 'data_orders.json');
-const MAX_ORDERS = 500;
-
-function readOrders() {
-  try {
-    if (nodeFs.existsSync(DB_FILE)) {
-      const parsed = JSON.parse(nodeFs.readFileSync(DB_FILE, 'utf8') || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    }
-  } catch (err) { console.error('[server] readOrders:', err.message); }
-  return [
-    { id: 'ORD-1001', paymentId: 'pay_P892104921', name: 'Vikrant Sharma', phone: '9876543210', email: 'vikrant@sadhnaayurveda.com', address: 'Madhuwala, Dehradun, Uttarakhand - 248007', itemsList: 'Sadhna Madhu Shant x 1', finalAmount: 3500, payMethod: 'razorpay', status: 'Pending Approval', stockAvailable: true, awbNumber: 'SR849201948', timestamp: new Date().toLocaleString('en-IN') },
-    { id: 'ORD-1002', paymentId: 'COD-7729103', name: 'Anjali Verma', phone: '9718179397', email: 'anjali@gmail.com', address: 'Sector 62, Noida, UP - 201301', itemsList: 'Sadhna Liver Detox Juice x 2', finalAmount: 7000, payMethod: 'cod', status: 'Approved', stockAvailable: true, awbNumber: 'SR992018234', timestamp: new Date().toLocaleString('en-IN') }
-  ];
-}
-
-function writeOrders(orders) {
-  try {
-    const safe = Array.isArray(orders) ? orders.slice(0, MAX_ORDERS) : [];
-    nodeFs.writeFileSync(DB_FILE, JSON.stringify(safe, null, 2), 'utf8');
-  } catch (err) { console.error('[server] writeOrders:', err.message); }
-}
-
-if (!nodeFs.existsSync(DB_FILE)) writeOrders(readOrders());
-
 const PHONE_REGEX = /^[6-9][0-9]{9}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const VALID_STATUSES = new Set(['Pending Approval', 'Approved', 'Shipped', 'Delivered', 'Out of Stock / Rejected']);
 
-app.get('/api/config', (_req, res) => res.json({ success: true, googleClientId: GOOGLE_CLIENT_ID }));
+app.get('/api/config', (_req, res) => res.json({ success: true, googleClientId: GOOGLE_CLIENT_ID, supabaseConnected: db.isSupabaseConfigured() }));
 
-app.get('/api/orders', (_req, res) => {
-  const orders = readOrders();
-  res.json({ success: true, count: orders.length, orders });
+app.get('/api/orders', async (_req, res) => {
+  try {
+    const orders = await db.fetchOrders();
+    res.json({ success: true, count: orders.length, orders });
+  } catch (err) {
+    console.error('[server] GET /api/orders error:', err.message);
+    res.status(500).json({ success: false, message: 'Failed to fetch orders.' });
+  }
 });
 
-app.post('/api/orders', rateLimiter(60000, 10), (req, res) => {
+app.post('/api/orders', rateLimiter(60000, 10), async (req, res) => {
   const { name, phone, email, address, itemsList, finalAmount, payMethod, paymentId } = req.body || {};
   if (!name || !phone || !itemsList) return res.status(400).json({ success: false, message: 'Missing required fields: name, phone, itemsList.' });
   if (!PHONE_REGEX.test((phone || '').trim())) return res.status(400).json({ success: false, message: 'Invalid Indian phone number.' });
@@ -73,67 +53,84 @@ app.post('/api/orders', rateLimiter(60000, 10), (req, res) => {
 
   const safeAmount = Math.max(0, Number(finalAmount) || 0);
   const safePayMethod = payMethod === 'razorpay' ? 'razorpay' : 'cod';
-  const orders = readOrders();
-  const orderId = 'ORD-' + String(1000 + orders.length).padStart(4, '0') + '-' + Date.now().toString(36).toUpperCase();
-  const newOrder = {
+  const existingOrders = await db.fetchOrders();
+  const orderId = 'ORD-' + String(1000 + existingOrders.length).padStart(4, '0') + '-' + Date.now().toString(36).toUpperCase();
+  
+  const orderPayload = {
     id: orderId,
     paymentId: sanitizeStr(paymentId) || (safePayMethod === 'cod' ? 'COD-' + Math.floor(100000 + Math.random() * 900000) : orderId),
-    name: sanitizeStr(name, 100), phone: sanitizeStr(phone, 15),
+    name: sanitizeStr(name, 100),
+    phone: sanitizeStr(phone, 15),
     email: sanitizeStr(email || 'customer@sadhnaayurveda.com', 150),
-    address: sanitizeStr(address, 300), itemsList: sanitizeStr(itemsList, 500),
-    finalAmount: safeAmount, payMethod: safePayMethod,
-    status: 'Pending Approval', stockAvailable: true,
+    address: sanitizeStr(address, 300),
+    itemsList: sanitizeStr(itemsList, 500),
+    finalAmount: safeAmount,
+    payMethod: safePayMethod,
+    status: 'Pending Approval',
+    stockAvailable: true,
     awbNumber: 'SR' + Math.floor(100000000 + Math.random() * 900000000),
     timestamp: new Date().toLocaleString('en-IN')
   };
-  orders.unshift(newOrder);
-  writeOrders(orders);
-  console.log('[server] New Order:', newOrder.id, newOrder.name);
-  return res.status(201).json({ success: true, message: 'Order submitted!', order: newOrder });
+
+  try {
+    const newOrder = await db.insertOrder(orderPayload);
+    console.log('[server] New Order created:', newOrder.id, newOrder.name);
+    return res.status(201).json({ success: true, message: 'Order submitted!', order: newOrder });
+  } catch (err) {
+    console.error('[server] POST /api/orders error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to create order.' });
+  }
 });
 
-app.put('/api/orders/:id/approve', (req, res) => {
+app.put('/api/orders/:id/approve', async (req, res) => {
   const orderId = sanitizeStr(req.params.id, 60);
-  const orders = readOrders();
-  const idx = orders.findIndex(o => o.id === orderId || o.paymentId === orderId);
-  if (idx === -1) return res.status(404).json({ success: false, message: 'Order not found.' });
-  orders[idx].status = 'Approved'; orders[idx].stockAvailable = true;
-  if (!orders[idx].awbNumber) orders[idx].awbNumber = 'SR' + Math.floor(100000000 + Math.random() * 900000000);
-  writeOrders(orders);
-  return res.json({ success: true, message: 'Order approved!', order: orders[idx] });
+  try {
+    const updated = await db.approveOrder(orderId);
+    if (!updated) return res.status(404).json({ success: false, message: 'Order not found.' });
+    return res.json({ success: true, message: 'Order approved!', order: updated });
+  } catch (err) {
+    console.error('[server] PUT /api/orders/:id/approve error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to approve order.' });
+  }
 });
 
-app.put('/api/orders/:id/reject', (req, res) => {
+app.put('/api/orders/:id/reject', async (req, res) => {
   const orderId = sanitizeStr(req.params.id, 60);
   const { reason } = req.body || {};
-  const orders = readOrders();
-  const idx = orders.findIndex(o => o.id === orderId || o.paymentId === orderId);
-  if (idx === -1) return res.status(404).json({ success: false, message: 'Order not found.' });
-  orders[idx].status = 'Out of Stock / Rejected'; orders[idx].stockAvailable = false;
-  orders[idx].rejectionReason = sanitizeStr(reason || 'Item out of stock', 300);
-  writeOrders(orders);
-  return res.json({ success: true, message: 'Order rejected!', order: orders[idx] });
+  try {
+    const updated = await db.rejectOrder(orderId, sanitizeStr(reason || 'Item out of stock', 300));
+    if (!updated) return res.status(404).json({ success: false, message: 'Order not found.' });
+    return res.json({ success: true, message: 'Order rejected!', order: updated });
+  } catch (err) {
+    console.error('[server] PUT /api/orders/:id/reject error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to reject order.' });
+  }
 });
 
-app.put('/api/orders/:id/status', (req, res) => {
+app.put('/api/orders/:id/status', async (req, res) => {
   const orderId = sanitizeStr(req.params.id, 60);
   const { status, awbNumber } = req.body || {};
-  const orders = readOrders();
-  const idx = orders.findIndex(o => o.id === orderId || o.paymentId === orderId);
-  if (idx === -1) return res.status(404).json({ success: false, message: 'Order not found.' });
-  if (status !== undefined) {
-    if (!VALID_STATUSES.has(status)) return res.status(400).json({ success: false, message: 'Invalid status value.' });
-    orders[idx].status = status;
+  if (status !== undefined && !VALID_STATUSES.has(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status value.' });
   }
-  if (awbNumber !== undefined) orders[idx].awbNumber = sanitizeStr(awbNumber, 50);
-  writeOrders(orders);
-  return res.json({ success: true, message: 'Order updated!', order: orders[idx] });
+  try {
+    const updated = await db.updateOrderStatus(orderId, status, awbNumber ? sanitizeStr(awbNumber, 50) : undefined);
+    if (!updated) return res.status(404).json({ success: false, message: 'Order not found.' });
+    return res.json({ success: true, message: 'Order updated!', order: updated });
+  } catch (err) {
+    console.error('[server] PUT /api/orders/:id/status error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to update order status.' });
+  }
 });
 
-app.get('/api/admin/stats', (_req, res) => {
-  const orders = readOrders();
-  const totalRevenue = orders.reduce((s, o) => s + (Number(o.finalAmount) || 0), 0);
-  return res.json({ success: true, stats: { totalRevenue, totalOrders: orders.length, pendingApproval: orders.filter(o => o.status === 'Pending Approval').length, approvedOrders: orders.filter(o => ['Approved','Shipped','Delivered'].includes(o.status)).length, outOfStockOrders: orders.filter(o => o.status === 'Out of Stock / Rejected').length } });
+app.get('/api/admin/stats', async (_req, res) => {
+  try {
+    const stats = await db.getAdminStats();
+    return res.json({ success: true, stats });
+  } catch (err) {
+    console.error('[server] GET /api/admin/stats error:', err.message);
+    return res.status(500).json({ success: false, message: 'Failed to fetch admin stats.' });
+  }
 });
 
 app.get('/admin', (_req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
